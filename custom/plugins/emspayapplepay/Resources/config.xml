@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/5.3/engine/Shopware/Components/Plugin/schema/config.xsd">
+    <elements>
+        <element required="true" type="text" scope="locale">
+            <name>emsonline_apikey</name>
+            <label lang="de">EMS Online API-Key</label>
+            <label lang="en">EMS Online API-Key</label>
+            <description lang="de">Bitte geben Sie Ihren EMS Online API-Schlüssel ein</description>
+            <description lang="en">Please enter your EMS Online API-Key</description>
+        </element>
+        <element type="boolean" scope="locale">
+            <name>emsonline_bundle_cacert</name>
+            <label lang="de">EMS Online CaCert</label>
+            <label lang="en">EMS Online CaCert</label>
+            <description lang="de">Standardmäßig verwenden</description>
+            <description lang="en">Use by default</description>
+        </element>
+    </elements>
+</config>
