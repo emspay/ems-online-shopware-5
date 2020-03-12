@@ -23,6 +23,12 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
         $plugin = $this->get('kernel')->getPlugins()['emspayapplepay'];
 
         $this->get('template')->addTemplateDir($plugin->getPath() . '/Resources/views');
+
+        $this->emsHelper = new EmsHelper($this->getClassName());
+
+        $config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName($this->getPaymentShortName(),Shopware()->Shop());
+
+        $this->ems = $this->emsHelper->getClient($config);
     }
 
     /**
@@ -40,7 +46,7 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
             case 'ApplePayPayment':
                 return $this->redirect(['action' => 'gateway', 'forceSecure' => true]);
             default:
-                return null;
+                return $this->redirect(['action' => 'direct', 'forceSecure' => true]);
         }
     }
 
@@ -51,19 +57,35 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
      */
     public function gatewayAction()
     {
-        $config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName($this->getPaymentShortName(),Shopware()->Shop());
-        $this->emsHelper = new EmsHelper($this->getClassName());
-        $this->ems = $this->emsHelper->getClient($config);
+        $providerUrl = $this->getProviderUrl();
+        $this->View()->assign('gatewayUrl', $providerUrl . $this->getUrlParameters());
 
-        $orderBasket = array_merge($this->getBasket(),
-            ['currency' => $this->getCurrencyShortName()],
-            ['shop_name' => Shopware()->Shop()->getName()],
-            $this->getUser(),
-            ['locale' => Shopware()->Shop()->getLocale()->getLocale()]);
-
-        print_r($this->emsHelper->getOrderData($orderBasket));exit;
     }
 
+    /**
+     * Generate EMS Apple Pay.
+     *
+     * @param array
+     * @return array
+     */
+    protected function createOrder(array $orderData)
+    {
+        return $this->ems->createOrder([
+            'amount' => $orderData['amount'],                                // Amount in cents
+            'currency' => $orderData['currency'],                            // Currency
+            'description' => $orderData['description'],                      // Description
+            'merchant_order_id' => (string) $orderData['merchant_order_id'], // Merchant Order Id
+            'return_url' => $orderData['return_url'],                        // Return URL
+            'customer' => $orderData['customer'],                            // Customer information
+            'extra' => $orderData['plugin_version'],                         // Extra information
+            'webhook_url' => $orderData['webhook_url'],                      // Webhook URL
+            'transactions' => [
+                [
+                    'payment_method' => "apple-pay"
+                ]
+            ]
+        ]);
+    }
 
     /**
      * Direct action method.
@@ -72,9 +94,14 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
      */
     public function directAction()
     {
-        $providerUrl = $this->getProviderUrl();
-       $this->redirect($providerUrl . $this->getUrlParameters());
-       exit();
+        $emsOrderData = $this->emsHelper->getOrderData($this->completeOrderData());
+        $emsOrder = $this->createOrder($emsOrderData);
+
+        if (isset($emsOrder['transactions'][0]['payment_url'])){
+        $this->redirect($emsOrder['transactions'][0]['payment_url']);
+        } else {
+            print_r("Error processing order");
+        }
     }
 
     /**
@@ -84,8 +111,9 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
      */
     public function returnAction()
     {
+        print_r(123);exit;
         /** @var ApplePayPaymentService $service */
-        $service = $this->container->get('ApplePayPayment.applepay_payment_service');
+        $service = $this->container->get('emspayapplepay.applepay_payment_service');
         $user = $this->getUser();
         $billing = $user['billingaddress'];
         /** @var PaymentResponse $response */
@@ -118,7 +146,7 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
      */
     public function cancelAction()
     {
-        echo 123;
+
     }
 
     /**
@@ -127,7 +155,7 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
     private function getUrlParameters()
     {
         /** @var ApplePayPaymentService $service */
-        $service = $this->container->get('ApplePayPayment.applepay_payment_service');
+        $service = $this->container->get('emspayapplepay.applepay_payment_service');
         $router = $this->Front()->Router();
         $user = $this->getUser();
         $billing = $user['billingaddress'];
@@ -150,8 +178,20 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
      *
      * @return string
      */
-    protected function getProviderUrl()
+    protected function getProviderUrl($controller = '',$action = 'pay')
     {
-        return $this->Front()->Router()->assemble(['controller' => '', 'action' => 'pay']);
+        return $this->Front()->Router()->assemble(['controller' => $controller, 'action' => $action]);
+    }
+
+    protected function completeOrderData(){
+        $webhook = $this->getProviderUrl(). $this->getUrlParameters();
+        $return_url = $this->getProviderUrl('ApplePayPayment','cancel');
+        return array_merge($this->getBasket(),
+            ['currency' => $this->getCurrencyShortName()],
+            ['shop_name' => Shopware()->Shop()->getName()],
+            $this->getUser(),
+            ['locale' => Shopware()->Shop()->getLocale()->getLocale()],
+            ['webhook_url' => $webhook],
+            ['return_url' => $return_url]);
     }
 }

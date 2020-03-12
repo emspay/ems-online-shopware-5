@@ -69,7 +69,7 @@ class EmsHelper
      */
 
     protected static function getCaCertPath(){
-        return dirname(__FILE__).'/emspay/ginger-php/assets/cacert.pem';
+        return dirname(__FILE__).'/ginger-php/assets/cacert.pem';
     }
 
     /**
@@ -85,20 +85,25 @@ class EmsHelper
         return [
             'amount' => self::getAmountInCents($info['content']['0']['amount']),
             'currency' => $info['currency'],
-            'merchant_order_id' => $info['content'][0]['id'],
-            'return_url' => 'unscribed',
+            'merchant_order_id' => (string)$info['content'][0]['id'],
+            'return_url' => $info['return_url'],
             'description' => $this->getOrderDescription($info),
             'customer' => $this->getCustomer($info),
             'payment_info' => [],
             'issuer_id' => [],
             'order_lines' => [],
-            'webhook_url' => [],
-            'plugin_version' => []
+            'webhook_url' => $info['webhook_url'],
+            'plugin_version' => ['plugin' => $this->getPluginVersion()],
         ];
     }
 
+    /**
+     * @param $info
+     * @return array
+     */
+
     protected function getBillingAdress($info){
-        return array_filter([
+        return [array_filter([
             'address_type' => 'billing',
             'address' => implode("\n", array(
                     trim($info['billingaddress']['street']),
@@ -107,7 +112,16 @@ class EmsHelper
                 )
             ),
             $info['additional']['country']['countryiso']
-        ]);
+        ])];
+    }
+
+    /**
+     * @return string
+     */
+
+    protected function getPluginVersion()
+    {
+        return sprintf('ShopWare v%s', self::PLUGIN_VERSION);
     }
 
     /**
@@ -135,14 +149,15 @@ class EmsHelper
            'email_address' => $info['additional']['user']['email'],
            'first_name' => $info['shippingaddress']['firstname'],
            'last_name' => $info['shippingaddress']['lastname'],
-           'merchant_customer_id' => $info['shippingaddress']['id'],
+           'merchant_customer_id' => (string)$info['shippingaddress']['id'],
            'phone_numbers' => array_filter([$info['billingaddress']['phone'],
                $info['shippingaddress']['phone']]),
-           'address' => implode("\n", array(
+           'address' => implode("\n", array_filter(array(
                 trim($info['shippingaddress']['street']),
                  trim($info['shippingaddress']['zipcode']),
                    trim($info['shippingaddress']['city'])
                 )
+               )
            ),
            'locale' => self::getLocaleLowerCode($info['locale']),
            'ip_address' => self::getIpOfTheServer(),
