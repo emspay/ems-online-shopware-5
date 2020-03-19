@@ -1,6 +1,6 @@
 <?php
 
-namespace emspayapplepay\Components\ApplePayPayment;
+namespace emspayapplepay\Components\emspayapplepay;
 
 class PaymentResponse
 {

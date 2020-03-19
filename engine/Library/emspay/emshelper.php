@@ -2,6 +2,19 @@
 
 class EmsHelper
 {
+    CONST EMS_TO_SHOPWARE_STATUSES =
+        [
+            'error' => 35,
+            'expired' => 34,
+            'cancelled' => 35,
+            'open' => 0,
+            'new' => 0,
+            'captured' => 1,
+            'processing' => 17,
+            'see-transactions' => 3,
+            'completed' => 12,
+        ];
+
     /**
      * EMS Online ShopWare plugin version
      */
@@ -22,17 +35,6 @@ class EmsHelper
      */
 
     const GINGER_ENDPOINT = 'https://api.online.emspay.eu';
-
-    /**
-     * EMS Online Order statuses
-     */
-    const EMS_STATUS_EXPIRED = 'expired';
-    const EMS_STATUS_NEW = 'new';
-    const EMS_STATUS_PROCESSING = 'processing';
-    const EMS_STATUS_COMPLETED = 'completed';
-    const EMS_STATUS_CANCELLED = 'cancelled';
-    const EMS_STATUS_ERROR = 'error';
-    const EMS_STATUS_CAPTURED = 'captured';
 
     /**
      * @param string $paymentMethod
@@ -62,6 +64,62 @@ class EmsHelper
         );
 
         return $ems;
+    }
+
+    public function update_order_payment_id($parametrs){
+        Shopware()->Db()->query("UPDATE s_order SET  temporaryID=? WHERE transactionID=?",[$parametrs['payment'],$parametrs['token']]);
+    }
+
+    /**
+     *  return array
+     */
+    public function get_main_ids($token, $payment_id, $status){
+        return [
+            'token' => $token,
+            'payment' => $payment_id,
+            'status' => $status
+        ];
+    }
+
+    /**
+     * @param array $parametrs
+     * @param $shopware_controler
+     * @return string
+     */
+
+    public function save_shopware_order(array $parametrs, $shopware_controler){
+        try{
+            return $shopware_controler->saveOrder($parametrs['token'],$parametrs['payment'],$parametrs['status']);
+        } catch (Exception $exception){
+            return $exception->getMessage();
+        }
+    }
+
+    /**
+     * @param array $parametrs
+     * @param $shopware_controler
+     * @return bool|string
+     */
+
+    public function update_shopware_order_payment_status(array $parametrs,$shopware_controler){
+        try{
+            $shopware_controler->savePaymentStatus($parametrs['token'],$parametrs['payment'],$parametrs['status']);
+            return true;
+        } catch (Exception $exception) {
+            return $exception->getMessage();
+        }
+    }
+    /**
+     * @param $order_id
+     * @return mixed
+     */
+
+    public function get_shopware_order_using_emspay_order($order_id){
+        $sql = "Select transactionID FROM s_order WHERE temporaryID=?";
+        $transactionsID = Shopware()->Db()->fetchOne($sql, [
+            $order_id,
+        ]);
+        return $transactionsID;
     }
 
     /**

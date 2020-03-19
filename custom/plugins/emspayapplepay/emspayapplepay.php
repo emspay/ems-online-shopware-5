@@ -22,7 +22,7 @@ class emspayapplepay extends Plugin
         $options = [
             'name' => 'emspayapplepay',
             'description' => 'EMS Online Apple Pay',
-            'action' => 'ApplePayPayment',
+            'action' => 'PaymentAction',
             'active' => 1,
             'position' => 1,
             'additionalDescription' =>

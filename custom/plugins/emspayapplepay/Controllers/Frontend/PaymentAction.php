@@ -1,12 +1,13 @@
 <?php
 
-use emspayapplepay\Components\ApplePayPayment\PaymentResponse;
-use emspayapplepay\Components\ApplePayPayment\ApplePayPaymentService;
+use emspayapplepay\Components\emspayapplepay\PaymentResponse;
+use emspayapplepay\Components\emspayapplepay\ApplePayPaymentService;
 require_once (realpath("engine/Library/emspay/emshelper.php"));
 
-class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers_Frontend_Payment
+class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_Frontend_Payment
 {
-    const PAYMENTSTATUSPAID = 12;
+    private $order_token;
+    private $shopware_order_id;
 
     /**
      * @var EmsHelper
@@ -18,15 +19,23 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
      */
     private $ems;
 
+    /**
+     * @var string
+     */
+
+    CONST EMS_PAY_PLUGIN_NAME = 'emspayapplepay';
+
     public function preDispatch()
     {
-        $plugin = $this->get('kernel')->getPlugins()['emspayapplepay'];
+        $plugin = $this->get('kernel')->getPlugins()[self::EMS_PAY_PLUGIN_NAME];
 
         $this->get('template')->addTemplateDir($plugin->getPath() . '/Resources/views');
 
         $this->emsHelper = new EmsHelper($this->getClassName());
 
-        $config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName($this->getPaymentShortName(),Shopware()->Shop());
+        $config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName(self::EMS_PAY_PLUGIN_NAME,Shopware()->Shop());
+
+        $this->shopware_order_id = $this->getBasket()['content'][0]['sessionID'];
 
         $this->ems = $this->emsHelper->getClient($config);
     }
@@ -43,10 +52,10 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
          * Check if one of the payment methods is selected. Else return to default controller.
          */
         switch ($this->getPaymentShortName()) {
-            case 'ApplePayPayment':
-                return $this->redirect(['action' => 'gateway', 'forceSecure' => true]);
-            default:
+            case self::EMS_PAY_PLUGIN_NAME:
                 return $this->redirect(['action' => 'direct', 'forceSecure' => true]);
+            default:
+                return $this->redirect(['action' => 'gateway', 'forceSecure' => true]);
         }
     }
 
@@ -87,6 +96,10 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
         ]);
     }
 
+    public function errorAction(){
+        print_r("message");exit;
+    }
+
     /**
      * Direct action method.
      *
@@ -97,8 +110,34 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
         $emsOrderData = $this->emsHelper->getOrderData($this->completeOrderData());
         $emsOrder = $this->createOrder($emsOrderData);
 
-        if (isset($emsOrder['transactions'][0]['payment_url'])){
-        $this->redirect($emsOrder['transactions'][0]['payment_url']);
+        if ($emsOrder['transactions'][0]['status'] == 'error') {
+            $this->redirect(['controller' => 'PaymentAction', 'action' => 'error']);
+        }
+
+        if (isset($emsOrder['transactions'][0]['payment_url'])&&!array_key_exists('error',$emsOrder['transactions'][0])){
+            if (!$this->emsHelper->save_shopware_order(
+                [
+                    'payment' => $emsOrder['transactions'][0]['order_id'],
+                    'token' => $this->shopware_order_id,
+                    'status' => $this->emsHelper::EMS_TO_SHOPWARE_STATUSES['processing']
+                ],
+                $this
+            )) {
+                $this->emsHelper->update_order_payment_id(
+                    [
+                        'payment' => $emsOrder['transactions'][0]['order_id'],
+                        'token' => $this->shopware_order_id
+                    ]
+                );
+                $this->emsHelper->update_shopware_order_payment_status([
+                    'payment' => $emsOrder['transactions'][0]['order_id'],
+                    'token' => $this->shopware_order_id,
+                    'status' => $this->emsHelper::EMS_TO_SHOPWARE_STATUSES['processing']
+                ],
+                    $this
+                );
+            }
+            $this->redirect($emsOrder['transactions'][0]['payment_url']);
         } else {
             print_r("Error processing order");
         }
@@ -111,34 +150,70 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
      */
     public function returnAction()
     {
-        print_r(123);exit;
-        /** @var ApplePayPaymentService $service */
-        $service = $this->container->get('emspayapplepay.applepay_payment_service');
-        $user = $this->getUser();
-        $billing = $user['billingaddress'];
-        /** @var PaymentResponse $response */
-        $response = $service->createPaymentResponse($this->Request());
-        $token = $service->createPaymentToken($this->getAmount(), $billing['customernumber']);
+        if (!isset($this->emsHelper)) {
+            $this->emsHelper = new EmsHelper($this->getClassName());
+        }
+        $ems_order = $this->ems->getOrder($_GET['order_id']);
 
-        if (!$service->isValidToken($response, $token)) {
-            $this->forward('cancel');
-
-            return;
+        if (empty($this->emsHelper->get_shopware_order_using_emspay_order($_GET['order_id']))) {
+            $token = $this->shopware_order_id;
+        } else {
+            $token = $this->emsHelper->get_shopware_order_using_emspay_order($_GET['order_id']);
         }
 
-        switch ($response->status) {
-            case 'accepted':
-                $this->saveOrder(
-                    $response->transactionId,
-                    $response->token,
-                    self::PAYMENTSTATUSPAID
+        switch ($ems_order['status']) {
+            case 'completed':
+                $this->emsHelper->update_shopware_order_payment_status(
+                    [
+                        'payment' => $_GET['order_id'],
+                        'token' => $token,
+                        'status' => $this->emsHelper::EMS_TO_SHOPWARE_STATUSES['completed']
+                    ],
+                    $this
                 );
                 $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
                 break;
             default:
+                $this->emsHelper->update_shopware_order_payment_status(
+                    [
+                        'payment' => $_GET['order_id'],
+                        'token' => $token,
+                        'status' => $this->emsHelper::EMS_TO_SHOPWARE_STATUSES['cancelled']
+                    ],
+                    $this);
                 $this->forward('cancel');
                 break;
         }
+    }
+
+    public function webhookAction(){
+
+        $request = $this->Request();
+
+            $input = json_decode(file_get_contents("php://input"), true);
+            $ems_orderID = $input['order_id'];
+
+
+        try{
+            $emsOrder = $this->ems->getOrder($ems_orderID);
+        } catch (Exception $exception){
+            die($exception->getMessage());
+        }
+
+        try {
+            if ($emsOrder['status'] == 'new' || $emsOrder['status'] == 'expired') {
+                $status = $this-$this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$emsOrder['status']];
+
+                $orderID = $this->emsHelper->get_shopware_order_using_emspay_order($ems_orderID);
+
+                $parametrs = $this->emsHelper->get_main_ids($orderID,$ems_orderID,$status);
+
+              var_dump($this->savePaymentStatus($parametrs['payment'],$parametrs['token'],$parametrs['status'])); exit;
+            }
+        } catch (Exception $exception) {
+        print_r($exception->getMessage()); exit;
+        }
+
     }
 
     /**
@@ -159,7 +234,7 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
         $router = $this->Front()->Router();
         $user = $this->getUser();
         $billing = $user['billingaddress'];
-
+        $order_token = $service->createPaymentToken($this->getAmount(), $billing['customernumber']);
         $parameter = [
             'amount' => $this->getAmount(),
             'currency' => $this->getCurrencyShortName(),
@@ -167,7 +242,7 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
             'lastName' => $billing['lastname'],
             'returnUrl' => $router->assemble(['action' => 'return', 'forceSecure' => true]),
             'cancelUrl' => $router->assemble(['action' => 'cancel', 'forceSecure' => true]),
-            'token' => $service->createPaymentToken($this->getAmount(), $billing['customernumber'])
+            'token' => $order_token
         ];
 
         return '?' . http_build_query($parameter);
@@ -184,8 +259,8 @@ class Shopware_Controllers_Frontend_ApplePayPayment extends Shopware_Controllers
     }
 
     protected function completeOrderData(){
-        $webhook = $this->getProviderUrl(). $this->getUrlParameters();
-        $return_url = $this->getProviderUrl('ApplePayPayment','cancel');
+        $webhook = $this->getProviderUrl('PaymentAction','webhook'). $this->getUrlParameters();
+        $return_url = $this->getProviderUrl('PaymentAction','return');
         return array_merge($this->getBasket(),
             ['currency' => $this->getCurrencyShortName()],
             ['shop_name' => Shopware()->Shop()->getName()],
