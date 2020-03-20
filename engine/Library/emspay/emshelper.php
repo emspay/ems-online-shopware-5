@@ -2,6 +2,10 @@
 
 class EmsHelper
 {
+    /**
+     * Translator EMS statuses into Shopware statuses
+     *
+     */
     CONST EMS_TO_SHOPWARE_STATUSES =
         [
             'error' => 35,
@@ -13,6 +17,7 @@ class EmsHelper
             'processing' => 17,
             'see-transactions' => 3,
             'completed' => 12,
+            'order_completed' => 2
         ];
 
     /**
@@ -66,11 +71,24 @@ class EmsHelper
         return $ems;
     }
 
+//    protected function update_shopware_oder_status($parametrs){
+//        $parametrs['status'] = self::EMS_TO_SHOPWARE_STATUSES['order_completed'];
+//        return Shopware()->Db()->query("UPDATE s_order SET  status=? WHERE transactionID=?",[$parametrs['status'],$parametrs['token']]);
+//    }
+
+    /**
+     * Update order paymentID (EmsPay orderId) if we have only Shopware Order Id
+     *
+     * @param $parametrs
+     */
+
     public function update_order_payment_id($parametrs){
         Shopware()->Db()->query("UPDATE s_order SET  temporaryID=? WHERE transactionID=?",[$parametrs['payment'],$parametrs['token']]);
     }
 
     /**
+     * Create a array of the main order parameters
+     *
      *  return array
      */
     public function get_main_ids($token, $payment_id, $status){
@@ -82,6 +100,8 @@ class EmsHelper
     }
 
     /**
+     * Save Shopware order with EMS Online  paramters SessionID and EMSPay_orderId
+     *
      * @param array $parametrs
      * @param $shopware_controler
      * @return string
@@ -96,6 +116,8 @@ class EmsHelper
     }
 
     /**
+     * Update Shopware Order payment status
+     *
      * @param array $parametrs
      * @param $shopware_controler
      * @return bool|string
@@ -104,12 +126,25 @@ class EmsHelper
     public function update_shopware_order_payment_status(array $parametrs,$shopware_controler){
         try{
             $shopware_controler->savePaymentStatus($parametrs['token'],$parametrs['payment'],$parametrs['status']);
+//            if ($parametrs['status'] == self::EMS_TO_SHOPWARE_STATUSES['completed']) self::update_shopware_oder_status($parametrs);
             return true;
         } catch (Exception $exception) {
             return $exception->getMessage();
         }
     }
+
     /**
+     * Regenerate sessionId for new orders
+     * @return mixed
+     */
+
+    public function endOrderSession(){
+        return Zend_Session::regenerateId();
+    }
+
+    /**
+     * Get Shopware order if we have only EMS Online order id (case for return action)
+     *
      * @param $order_id
      * @return mixed
      */
@@ -131,6 +166,8 @@ class EmsHelper
     }
 
     /**
+     *  Get the Ginger Client using client configuration
+     *
      * @param object $config
      * @return \Ginger\ApiClient
      */
@@ -156,6 +193,8 @@ class EmsHelper
     }
 
     /**
+     * Get the Shopware Billing Adress
+     *
      * @param $info
      * @return array
      */
@@ -174,6 +213,8 @@ class EmsHelper
     }
 
     /**
+     * Get version of the plugin
+     *
      * @return string
      */
 
@@ -183,6 +224,8 @@ class EmsHelper
     }
 
     /**
+     * Get IP of the remote server
+     *
      * @return mixed
      */
 
@@ -191,6 +234,8 @@ class EmsHelper
     }
 
     /**
+     * Get Shopware Shop locale
+     *
      * @param $locale
      * @return mixed
      */
@@ -200,6 +245,13 @@ class EmsHelper
         return $low;
     }
 
+    /**
+     * Function creating customer array
+     *
+     * @param $info
+     * @return array
+     *
+     */
     protected function getCustomer($info){
        return array_filter([
            'address_type' => 'customer',
@@ -224,6 +276,9 @@ class EmsHelper
     }
 
     /**
+     *
+     * Add description to order
+     *
      * @param $info
      * @return string
      */
@@ -234,6 +289,8 @@ class EmsHelper
     }
 
     /**
+     * Get amount of the order in cents
+     *
      * @param $amount
      * @return int
      */

@@ -160,7 +160,6 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
         } else {
             $token = $this->emsHelper->get_shopware_order_using_emspay_order($_GET['order_id']);
         }
-
         switch ($ems_order['status']) {
             case 'completed':
                 $this->emsHelper->update_shopware_order_payment_status(
@@ -172,6 +171,7 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
                     $this
                 );
                 $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
+                $this->emsHelper->endOrderSession();
                 break;
             default:
                 $this->emsHelper->update_shopware_order_payment_status(
@@ -181,7 +181,7 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
                         'status' => $this->emsHelper::EMS_TO_SHOPWARE_STATUSES['cancelled']
                     ],
                     $this);
-                $this->forward('cancel');
+                $this->redirect(['controller' => 'PaymentAction', 'action' => 'cancel']);
                 break;
         }
     }
