@@ -1,7 +1,5 @@
 <?php
 
-use emspayapplepay\Components\emspayapplepay\PaymentResponse;
-use emspayapplepay\Components\emspayapplepay\ApplePayPaymentService;
 require_once (realpath("engine/Library/emspay/emshelper.php"));
 
 class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_Frontend_Payment
@@ -157,6 +155,9 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
 
         if (empty($this->emsHelper->get_shopware_order_using_emspay_order($_GET['order_id']))) {
             $token = $this->shopware_order_id;
+            if (SShopware()->Session()->get('sessionId')!=$token){
+                return false;
+            }
         } else {
             $token = $this->emsHelper->get_shopware_order_using_emspay_order($_GET['order_id']);
         }
@@ -230,12 +231,9 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
      */
     private function getUrlParameters()
     {
-        /** @var ApplePayPaymentService $service */
-        $service = $this->container->get('emspayapplepay.applepay_payment_service');
         $router = $this->Front()->Router();
         $user = $this->getUser();
         $billing = $user['billingaddress'];
-        $order_token = $service->createPaymentToken($this->getAmount(), $billing['customernumber']);
         $parameter = [
             'amount' => $this->getAmount(),
             'currency' => $this->getCurrencyShortName(),
@@ -243,7 +241,6 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
             'lastName' => $billing['lastname'],
             'returnUrl' => $router->assemble(['action' => 'return', 'forceSecure' => true]),
             'cancelUrl' => $router->assemble(['action' => 'cancel', 'forceSecure' => true]),
-            'token' => $order_token
         ];
 
         return '?' . http_build_query($parameter);
