@@ -12,7 +12,7 @@ class EmsHelper
             'expired' => 34,
             'cancelled' => 35,
             'open' => 0,
-            'new' => 0,
+            'new' => 17,
             'captured' => 1,
             'processing' => 17,
             'see-transactions' => 3,

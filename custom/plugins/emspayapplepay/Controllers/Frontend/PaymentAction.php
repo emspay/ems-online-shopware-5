@@ -187,12 +187,13 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
     }
 
     public function webhookAction(){
+        $input = json_decode(file_get_contents("php://input"), true);
 
-        $request = $this->Request();
+        if ($input['event'] != 'status_changed') {
+            return false;
+        }
 
-            $input = json_decode(file_get_contents("php://input"), true);
-            $ems_orderID = $input['order_id'];
-
+        $ems_orderID = $input['order_id'];
 
         try{
             $emsOrder = $this->ems->getOrder($ems_orderID);
@@ -201,15 +202,15 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
         }
 
         try {
-            if ($emsOrder['status'] == 'new' || $emsOrder['status'] == 'expired') {
-                $status = $this-$this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$emsOrder['status']];
-
-                $orderID = $this->emsHelper->get_shopware_order_using_emspay_order($ems_orderID);
-
-                $parametrs = $this->emsHelper->get_main_ids($orderID,$ems_orderID,$status);
-
-              var_dump($this->savePaymentStatus($parametrs['payment'],$parametrs['token'],$parametrs['status'])); exit;
-            }
+            $orderID = $this->emsHelper->get_shopware_order_using_emspay_order($ems_orderID);
+              var_dump($this->emsHelper->update_shopware_order_payment_status(
+                  [
+                      'payment' => $ems_orderID,
+                      'token' => $orderID,
+                      'status' => $this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$emsOrder['transactions'][0]['status']]
+                  ],
+                  $this
+              ));
         } catch (Exception $exception) {
         print_r($exception->getMessage()); exit;
         }
