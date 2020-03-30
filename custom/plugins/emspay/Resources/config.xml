@@ -16,5 +16,13 @@
             <description lang="de">Standardmäßig verwenden</description>
             <description lang="en">Use by default</description>
         </element>
+        <element required="true" type="text" scope="locale">
+            <name>ShopWare administrator API-key</name>
+            <label lang="de">ShopWare API-Key</label>
+            <label lang="en">ShopWare API-Key</label>
+            <description lang="de">Bitte fügen Sie den API-Schlüssel aus den Benutzereinstellungen des ShopWare-Shops ein</description>
+            <description lang="en">Please paste API-key from user settings of the ShopWare shop</description>
+        </element>
+
     </elements>
 </config>

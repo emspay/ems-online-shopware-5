@@ -1,5 +1,7 @@
 <?php
 
+namespace Helper;
+
 class EmsHelper
 {
     /**
@@ -11,13 +13,9 @@ class EmsHelper
             'error' => 35,
             'expired' => 34,
             'cancelled' => 35,
-            'open' => 0,
             'new' => 17,
-            'captured' => 1,
             'processing' => 17,
-            'see-transactions' => 3,
             'completed' => 12,
-            'order_completed' => 2
         ];
 
     /**
@@ -70,69 +68,6 @@ class EmsHelper
 
         return $ems;
     }
-
-//    protected function update_shopware_oder_status($parametrs){
-//        $parametrs['status'] = self::EMS_TO_SHOPWARE_STATUSES['order_completed'];
-//        return Shopware()->Db()->query("UPDATE s_order SET  status=? WHERE transactionID=?",[$parametrs['status'],$parametrs['token']]);
-//    }
-
-    /**
-     * Update order paymentID (EmsPay orderId) if we have only Shopware Order Id
-     *
-     * @param $parametrs
-     */
-
-    public function update_order_payment_id($parametrs){
-        Shopware()->Db()->query("UPDATE s_order SET  temporaryID=? WHERE transactionID=?",[$parametrs['payment'],$parametrs['token']]);
-    }
-
-    /**
-     * Create a array of the main order parameters
-     *
-     *  return array
-     */
-    public function get_main_ids($token, $payment_id, $status){
-        return [
-            'token' => $token,
-            'payment' => $payment_id,
-            'status' => $status
-        ];
-    }
-
-    /**
-     * Save Shopware order with EMS Online  paramters SessionID and EMSPay_orderId
-     *
-     * @param array $parametrs
-     * @param $shopware_controler
-     * @return string
-     */
-
-    public function save_shopware_order(array $parametrs, $shopware_controler){
-        try{
-            return $shopware_controler->saveOrder($parametrs['token'],$parametrs['payment'],$parametrs['status']);
-        } catch (Exception $exception){
-            return $exception->getMessage();
-        }
-    }
-
-    /**
-     * Update Shopware Order payment status
-     *
-     * @param array $parametrs
-     * @param $shopware_controler
-     * @return bool|string
-     */
-
-    public function update_shopware_order_payment_status(array $parametrs,$shopware_controler){
-        try{
-            $shopware_controler->savePaymentStatus($parametrs['token'],$parametrs['payment'],$parametrs['status']);
-//            if ($parametrs['status'] == self::EMS_TO_SHOPWARE_STATUSES['completed']) self::update_shopware_oder_status($parametrs);
-            return true;
-        } catch (Exception $exception) {
-            return $exception->getMessage();
-        }
-    }
-
     /**
      * Regenerate sessionId for new orders
      * @return mixed
@@ -140,21 +75,6 @@ class EmsHelper
 
     public function endOrderSession(){
         return Zend_Session::regenerateId();
-    }
-
-    /**
-     * Get Shopware order if we have only EMS Online order id (case for return action)
-     *
-     * @param $order_id
-     * @return mixed
-     */
-
-    public function get_shopware_order_using_emspay_order($order_id){
-        $sql = "Select transactionID FROM s_order WHERE temporaryID=?";
-        $transactionsID = Shopware()->Db()->fetchOne($sql, [
-            $order_id,
-        ]);
-        return $transactionsID;
     }
 
     /**

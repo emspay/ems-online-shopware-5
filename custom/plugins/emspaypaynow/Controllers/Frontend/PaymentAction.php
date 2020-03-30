@@ -1,5 +1,8 @@
 <?php
 
+use emspaypaynow\Components\emspaypaynow\PaymentResponse;
+use emspaypaynow\Components\emspaypaynow\PaymentService;
+
 class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_Frontend_Payment
 {
     private $order_token;
@@ -19,7 +22,11 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
      * @var string
      */
 
-    CONST EMS_PAY_PLUGIN_NAME = 'emspayapplepay';
+    protected $config;
+
+    CONST EMS_PAY_LIBRARY_NAME = 'emspay';
+
+    CONST EMS_PAY_PLUGIN_NAME = 'emspaypaynow';
 
     public function preDispatch()
     {
@@ -27,13 +34,19 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
 
         $this->get('template')->addTemplateDir($plugin->getPath() . '/Resources/views');
 
-        $this->emsHelper = new EmsHelper($this->getClassName());
+        $lib = $this->get('kernel')->getPlugins()[self::EMS_PAY_LIBRARY_NAME];
 
-        $config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName(self::EMS_PAY_PLUGIN_NAME,Shopware()->Shop());
+        if (empty($lib)) {die('first install EMS Online Library');}
+
+        require_once($lib->getPath()."/emshelper.php");
+
+        $this->emsHelper = new \Helper\EmsHelper($this->getClassName());
+
+        $this->config = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName(self::EMS_PAY_LIBRARY_NAME,Shopware()->Shop());
 
         $this->shopware_order_id = $this->getBasket()['content'][0]['sessionID'];
 
-        $this->ems = $this->emsHelper->getClient($config);
+        $this->ems = $this->emsHelper->getClient($this->config);
     }
 
     /**
@@ -84,11 +97,6 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
             'customer' => $orderData['customer'],                            // Customer information
             'extra' => $orderData['plugin_version'],                         // Extra information
             'webhook_url' => $orderData['webhook_url'],                      // Webhook URL
-            'transactions' => [
-                [
-                    'payment_method' => "apple-pay"
-                ]
-            ]
         ]);
     }
 
@@ -106,34 +114,12 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
         $emsOrderData = $this->emsHelper->getOrderData($this->completeOrderData());
         $emsOrder = $this->createOrder($emsOrderData);
 
-        if ($emsOrder['transactions'][0]['status'] == 'error') {
+        if ($emsOrder['status'] == 'error') {
             $this->redirect(['controller' => 'PaymentAction', 'action' => 'error']);
         }
 
-        if (isset($emsOrder['transactions'][0]['payment_url'])&&!array_key_exists('error',$emsOrder['transactions'][0])){
-            if (!$this->emsHelper->save_shopware_order(
-                [
-                    'payment' => $emsOrder['transactions'][0]['order_id'],
-                    'token' => $this->shopware_order_id,
-                    'status' => $this->emsHelper::EMS_TO_SHOPWARE_STATUSES['processing']
-                ],
-                $this
-            )) {
-                $this->emsHelper->update_order_payment_id(
-                    [
-                        'payment' => $emsOrder['transactions'][0]['order_id'],
-                        'token' => $this->shopware_order_id
-                    ]
-                );
-                $this->emsHelper->update_shopware_order_payment_status([
-                    'payment' => $emsOrder['transactions'][0]['order_id'],
-                    'token' => $this->shopware_order_id,
-                    'status' => $this->emsHelper::EMS_TO_SHOPWARE_STATUSES['processing']
-                ],
-                    $this
-                );
-            }
-            $this->redirect($emsOrder['transactions'][0]['payment_url']);
+        if (isset($emsOrder['order_url'])){
+            $this->redirect($emsOrder['order_url']);
         } else {
             print_r("Error processing order");
         }
@@ -146,42 +132,29 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
      */
     public function returnAction()
     {
+        $service = $this->container->get("emspaypaynow.paymentservice");
+        $user = $this->getUser();
+        $billing = $user['billingaddress'];
+        $token = $service->createPaymentToken($this->getAmount(), $billing['customernumber']);
+
         if (!isset($this->emsHelper)) {
             $this->emsHelper = new EmsHelper($this->getClassName());
         }
         $ems_order = $this->ems->getOrder($_GET['order_id']);
-
-        if (empty($this->emsHelper->get_shopware_order_using_emspay_order($_GET['order_id']))) {
-            $token = $this->shopware_order_id;
-            if (Shopware()->Session()->get('sessionId')!=$token){
-                return false;
-            }
-        } else {
-            $token = $this->emsHelper->get_shopware_order_using_emspay_order($_GET['order_id']);
-        }
         switch ($ems_order['status']) {
             case 'completed':
-                $this->emsHelper->update_shopware_order_payment_status(
-                    [
-                        'payment' => $_GET['order_id'],
-                        'token' => $token,
-                        'status' => $this->emsHelper::EMS_TO_SHOPWARE_STATUSES['completed']
-                    ],
-                    $this
+                $this->saveOrder(
+                    $ems_order['transactions'][0]['id'],
+                    $token,
+                    $this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]
                 );
                 $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
-                $this->emsHelper->endOrderSession();
+                break;
+            case 'cancelled':
+                $this->forward('cancel');
                 break;
             default:
-                $this->emsHelper->update_shopware_order_payment_status(
-                    [
-                        'payment' => $_GET['order_id'],
-                        'token' => $token,
-                        'status' => $this->emsHelper::EMS_TO_SHOPWARE_STATUSES['cancelled']
-                    ],
-                    $this);
-                $this->redirect(['controller' => 'PaymentAction', 'action' => 'cancel']);
-                break;
+                return $this->redirect(['controller' => 'checkout']);
         }
     }
 
@@ -192,26 +165,19 @@ class Shopware_Controllers_Frontend_PaymentAction extends Shopware_Controllers_F
             return false;
         }
 
-        $ems_orderID = $input['order_id'];
-
         try{
-            $emsOrder = $this->ems->getOrder($ems_orderID);
-        } catch (Exception $exception){
-            die($exception->getMessage());
+        $ems_orderID = $input['order_id'];
+        $service = $this->container->get("emspaypaynow.paymentservice");
+        $token = $service->createPaymentResponse($this->Request())->token;
+        $emsOrder = $this->ems->getOrder($ems_orderID);
+        } catch (Exception $exception) {
+            die("Error getting data from webhook".$exception->getMessage());
         }
 
-        try {
-            $orderID = $this->emsHelper->get_shopware_order_using_emspay_order($ems_orderID);
-              var_dump($this->emsHelper->update_shopware_order_payment_status(
-                  [
-                      'payment' => $ems_orderID,
-                      'token' => $orderID,
-                      'status' => $this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$emsOrder['transactions'][0]['status']]
-                  ],
-                  $this
-              ));
-        } catch (Exception $exception) {
-        print_r($exception->getMessage()); exit;
+        try{
+            $this->savePaymentStatus($emsOrder['transactions'][0]['id'],$token,9);
+        } catch (Exception $exception){
+            die("Error saving order using webhook action".$exception->getMessage());
         }
 
     }
