@@ -1,8 +1,11 @@
 <?php
 
-namespace Helper;
+namespace emspay\Components\Emspay;
 
-class EmsHelper
+use Ginger\ApiClient;
+use Ginger\Ginger;
+
+class Helper
 {
     /**
      * Translator EMS statuses into Shopware statuses
@@ -11,11 +14,13 @@ class EmsHelper
     CONST EMS_TO_SHOPWARE_STATUSES =
         [
             'error' => 35,
-            'expired' => 34,
+            'expired' => 35,
             'cancelled' => 35,
             'new' => 17,
             'processing' => 17,
             'completed' => 12,
+            'see-transactions' => 21,
+            'captured' => 12
         ];
 
     /**
@@ -29,22 +34,17 @@ class EmsHelper
     const DEFAULT_CURRENCY = 'EUR';
 
     /**
-     * @var string
-     */
-    protected $paymentMethod;
-
-    /**
      *  Default Ginger endpoint
      */
 
     const GINGER_ENDPOINT = 'https://api.online.emspay.eu';
 
     /**
-     * @param string $paymentMethod
+     * Constructor of the class which includes ginger-php autoload
      */
-    public function __construct($paymentMethod){
+
+    public function __construct(){
         require_once ("ginger-php/vendor/autoload.php");
-        $this->paymentMethod = $paymentMethod;
     }
 
     /**
@@ -58,7 +58,7 @@ class EmsHelper
     protected function getGignerClinet($apiKey, $useBundle = false)
     {
         $ems = \Ginger\Ginger::createClient(
-            EmsHelper::GINGER_ENDPOINT,
+            self::GINGER_ENDPOINT,
             $apiKey,
             $useBundle ?
                 [
@@ -110,6 +110,33 @@ class EmsHelper
             'webhook_url' => $info['webhook_url'],
             'plugin_version' => ['plugin' => $this->getPluginVersion()],
         ];
+    }
+
+    /**
+     * Generate EMS Apple Pay.
+     *
+     * @param array
+     * @return array
+     */
+    public function createOrder(array $orderData, $ginger,$payment_method = null)
+    {
+        $preOrder = [
+            'amount' => $orderData['amount'],                                // Amount in cents
+            'currency' => $orderData['currency'],                            // Currency
+            'description' => $orderData['description'],                      // Description
+            'merchant_order_id' => (string) $orderData['merchant_order_id'], // Merchant Order Id
+            'return_url' => $orderData['return_url'],                        // Return URL
+            'customer' => $orderData['customer'],                            // Customer information
+            'extra' => $orderData['plugin_version'],                         // Extra information
+            'webhook_url' => $orderData['webhook_url'],                      // Webhook URL
+        ];
+        if ($payment_method!=null) {
+            $preOrder = array_merge($preOrder, ['transactions' => [
+                    'payment_method' => $payment_method
+                ]]);
+        }
+
+        return $ginger->createOrder($preOrder);
     }
 
     /**

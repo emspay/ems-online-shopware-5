@@ -1,8 +1,8 @@
 <?php
 
-namespace emspaypaynow\Components\emspaypaynow;
+namespace emspay\Components\Emspay;
 
-class PaymentResponse
+class Response
 {
     /**
      * @var int

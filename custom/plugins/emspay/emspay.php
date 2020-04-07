@@ -28,6 +28,7 @@ class emspay extends Plugin
         ];
         $installer->createOrUpdate($context->getPlugin(), $options);
     }
+
     /**
      * @param UninstallContext $context
      */

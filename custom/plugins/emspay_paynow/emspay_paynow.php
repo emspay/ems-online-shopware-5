@@ -1,6 +1,6 @@
 <?php
 
-namespace emspaypaynow;
+namespace emspay_paynow;
 
 use Shopware\Components\Plugin;
 use Shopware\Components\Plugin\Context\ActivateContext;
@@ -9,7 +9,7 @@ use Shopware\Components\Plugin\Context\InstallContext;
 use Shopware\Components\Plugin\Context\UninstallContext;
 use Shopware\Models\Payment\Payment;
 
-class emspaypaynow extends Plugin
+class emspay_paynow extends Plugin
 {
     /**
      * @param InstallContext $context
@@ -20,13 +20,13 @@ class emspaypaynow extends Plugin
         $installer = $this->container->get('shopware.plugin_payment_installer');
 
         $options = [
-            'name' => 'emspaypaynow',
+            'name' => 'emspay_paynow',
             'description' => 'EMS Online Pay Now',
-            'action' => 'PaymentAction',
+            'action' => 'EmsPayPayNow',
             'active' => 1,
             'position' => 1,
             'additionalDescription' =>
-                '<img src="custom/plugins/emspaypaynow/emspaypaynow.png"/>'
+                '<img src="custom/plugins/emspay_paynow/emspay_paynow.png"/>'
                 . '<div id="payment_desc">'
                 . '  Pay using EMS Online.'
                 . '</div>'

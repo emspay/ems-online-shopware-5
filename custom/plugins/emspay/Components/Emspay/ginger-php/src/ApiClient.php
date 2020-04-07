@@ -123,7 +123,7 @@ final class ApiClient
             );
         } catch (\Exception $exception) {
             throw HttpRequestFailure::because($exception);
-        }
+            }
 
         return $this->interpretResponse($response);
     }

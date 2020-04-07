@@ -1,16 +1,18 @@
 <?php
 
-namespace emspaypaynow\Components\emspaypaynow;
+namespace emspay\Components\Emspay;
 
-class PaymentService
+use http\Env\Response;
+
+class Service
 {
     /**
      * @param $request \Enlight_Controller_Request_Request
-     * @return PaymentResponse
+     * @return \emspay\Components\Emspay\Response
      */
     public function createPaymentResponse(\Enlight_Controller_Request_Request $request)
     {
-        $response = new PaymentResponse();
+        $response = new \emspay\Components\Emspay\Response();
         $response->transactionId = $request->getParam('transactionId', null);
         $response->status = $request->getParam('status', null);
         $response->token = $request->getParam('token', null);
@@ -19,11 +21,11 @@ class PaymentService
     }
 
     /**
-     * @param PaymentResponse $response
+     * @param Response $response
      * @param string $token
      * @return bool
      */
-    public function isValidToken(PaymentResponse $response, $token)
+    public function isValidToken(Response $response, $token)
     {
         return hash_equals($token, $response->token);
     }
