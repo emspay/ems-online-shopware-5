@@ -232,6 +232,8 @@ class Helper
            'phone_numbers' => array_filter([$info['billingaddress']['phone'],
                $info['shippingaddress']['phone']]),
            'address' => implode("\n", array_filter(array(
+               trim($info['shippingaddress']['additionalAddressLine1']),
+                trim($info['shippingaddress']['additionalAddressLine2']),
                 trim($info['shippingaddress']['street']),
                  trim($info['shippingaddress']['zipcode']),
                    trim($info['shippingaddress']['city'])
