@@ -46,12 +46,12 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
      */
     public function directAction()
     {
-        $emsOrderData = $this->emsHelper->getOrderData($this->completeOrderData());
         try{
-        $emsOrder = $this->emsHelper->createOrder($emsOrderData,$this->ems);
+            $emsOrder = $this->emsHelper->createOrder($this->completeOrderData(),$this->ems);
         } catch (Exception $exception) {
             print_r($exception->getMessage());exit;
         }
+
         if ($emsOrder['status'] == 'error') {
             print_r("Error while creating your EMS order , please try again later"); exit;
         }
@@ -97,35 +97,31 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
     }
 
     /**
-     * Creates the url parameters
+     * Webhook
+     * @return bool
      */
-    private function getUrlParameters()
-    {
-        $service = $this->container->get('emspay.service');
-        $router = $this->Front()->Router();
-        $user = $this->getUser();
-        $billing = $user['billingaddress'];
-        $parameter = [
-            'amount' => $this->getAmount(),
-            'currency' => $this->getCurrencyShortName(),
-            'firstName' => $billing['firstname'],
-            'lastName' => $billing['lastname'],
-            'returnUrl' => $router->assemble(['action' => 'return', 'forceSecure' => true]),
-            'cancelUrl' => $router->assemble(['action' => 'cancel', 'forceSecure' => true]),
-            'token' => $service->createPaymentToken($this->getAmount(), $billing['customernumber'])
-        ];
+    public function webhookAction(){
+        $input = json_decode(file_get_contents("php://input"), true);
 
-        return '?' . http_build_query($parameter);
-    }
+        if ($input['event'] != 'status_changed') {
+            return false;
+        }
 
-    /**
-     * Returns the URL of the payment provider. This has to be replaced with the real payment provider URL
-     *
-     * @return string
-     */
-    protected function getProviderUrl($controller = '',$action = 'pay')
-    {
-        return $this->Front()->Router()->assemble(['controller' => $controller, 'action' => $action]);
+        try{
+            $ems_orderID = $input['order_id'];
+            $service = $this->container->get("emspay.service");
+            $token = $service->createPaymentResponse($this->Request())->token;
+            $emsOrder = $this->ems->getOrder($ems_orderID);
+        } catch (Exception $exception) {
+            die("Error getting data from webhook".$exception->getMessage());
+        }
+
+        try{
+            return $this->savePaymentStatus($emsOrder['id'],$token,9);
+        } catch (Exception $exception){
+            die("Error saving order using webhook action".$exception->getMessage());
+        }
+
     }
 
     /**
@@ -133,14 +129,17 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
      * @return array
      */
     protected function completeOrderData(){
-        $webhook = $this->getProviderUrl('EmsPayPayNow','webhook'). $this->getUrlParameters();
-        $return_url = $this->getProviderUrl('EmsPayPayNow','return');
-        return array_merge($this->getBasket(),
+        $webhook = $this->emsHelper->getProviderUrl('EmsPayKlarnaPayLater','webhook'). $this->emsHelper->getUrlParameters($this->getAmount(),$this->getUser()['billingaddress']['customernumber']);
+        $return_url = $this->emsHelper->getProviderUrl('EmsPayKlarnaPayLater','return');
+        return array_merge([
+            'payment_name' => self::EMS_PAY_PLUGIN_NAME],
+            $this->getBasket(),
             ['currency' => $this->getCurrencyShortName()],
             ['shop_name' => Shopware()->Shop()->getName()],
             $this->getUser(),
             ['locale' => Shopware()->Shop()->getLocale()->getLocale()],
             ['webhook_url' => $webhook],
-            ['return_url' => $return_url]);
+            ['return_url' => $return_url]
+        );
     }
 }

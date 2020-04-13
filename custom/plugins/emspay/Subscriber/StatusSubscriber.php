@@ -33,10 +33,10 @@ class StatusSubscriber implements SubscriberInterface
 
             $orderId = $request['transactionId'];
             $emsOrder = $this->ems->getOrder($orderId);
-            $transactionId = $emsOrder['transactions'][0]['id'];
-
-            $this->ems->captureOrderTransaction($orderId,$transactionId);
-
+            $transactionId = !empty(current($emsOrder['transactions'])) ? current($emsOrder['transactions'])['id'] : null;
+//             print_r($transactionId.'+++'.$orderId);exit;
+            print_r($this->ems->captureOrderTransaction($orderId,$transactionId));
+            exit;
         }
         return true;
     }

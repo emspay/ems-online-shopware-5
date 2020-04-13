@@ -20,7 +20,8 @@ class Helper
             'processing' => 17,
             'completed' => 12,
             'see-transactions' => 21,
-            'captured' => 12
+            'captured' => 12,
+            'invoiced' => 10
         ];
 
     /**
@@ -68,14 +69,6 @@ class Helper
 
         return $ems;
     }
-    /**
-     * Regenerate sessionId for new orders
-     * @return mixed
-     */
-
-    public function endOrderSession(){
-        return Zend_Session::regenerateId();
-    }
 
     /**
      *  function get Cacert.pem path
@@ -96,47 +89,76 @@ class Helper
         return $this->getGignerClinet($config['emsonline_apikey'],$config['emsonline_bundle_cacert']);
     }
 
-    public function getOrderData(array $info){
-        return [
-            'amount' => self::getAmountInCents($info['content']['0']['amount']),
-            'currency' => $info['currency'],
-            'merchant_order_id' => (string)$info['content'][0]['id'],
-            'return_url' => $info['return_url'],
-            'description' => $this->getOrderDescription($info),
-            'customer' => $this->getCustomer($info),
-            'payment_info' => [],
-            'issuer_id' => [],
-            'order_lines' => [],
-            'webhook_url' => $info['webhook_url'],
-            'plugin_version' => ['plugin' => $this->getPluginVersion()],
-        ];
-    }
-
     /**
      * Generate EMS Apple Pay.
      *
      * @param array
      * @return array
      */
-    public function createOrder(array $orderData, $ginger,$payment_method = null)
+    public function createOrder(array $orderData, $ginger ,$payment_method = null)
     {
-        $preOrder = [
-            'amount' => $orderData['amount'],                                // Amount in cents
-            'currency' => $orderData['currency'],                            // Currency
-            'description' => $orderData['description'],                      // Description
-            'merchant_order_id' => (string) $orderData['merchant_order_id'], // Merchant Order Id
-            'return_url' => $orderData['return_url'],                        // Return URL
-            'customer' => $orderData['customer'],                            // Customer information
-            'extra' => $orderData['plugin_version'],                         // Extra information
-            'webhook_url' => $orderData['webhook_url'],                      // Webhook URL
-        ];
-        if ($payment_method!=null) {
-            $preOrder = array_merge($preOrder, ['transactions' => [
-                    'payment_method' => $payment_method
-                ]]);
-        }
-
+        $preOrder = array_filter([
+            'amount' => self::getAmountInCents($orderData['content']['0']['amount']),   // Amount in cents
+            'currency' => $orderData['currency'],                                       // Currency
+            'merchant_order_id' => (string)$orderData['content'][0]['id'],              // Merchant Order Id
+            'return_url' => $orderData['return_url'],                                   // Return URL
+            'description' => $this->getOrderDescription($orderData),                    // Description
+            'customer' => $this->getCustomer($orderData),                               // Customer information
+            'payment_info' => [],
+            'issuer_id' => [],
+            'order_lines' => $this->getOrderLines($orderData['content'],$orderData['payment_name']),
+            'transactions' => array_filter([array_filter(['payment_method' => $payment_method])]),
+            'webhook_url' => $orderData['webhook_url'],                                 // Webhook URL
+            'extra' => ['plugin' => $this->getPluginVersion()],                         // Extra information]);
+        ]);
         return $ginger->createOrder($preOrder);
+    }
+
+    /**
+     * Get Order Lines line
+     * @param $products
+     * @param $name
+     * @return array|null
+     */
+    private function getOrderLines($products,$name){
+        if (!in_array($name,['emspay_klarnapaylater','emspay_afterpay']))
+        {
+            return null;
+        }
+        $order_lines = array();
+        foreach ($products as $product){
+            array_push($order_lines,
+            [
+                'name' => $product['articlename'],
+                'type' => 'physical',
+                'currency' => self::DEFAULT_CURRENCY,
+                'amount' => self::getAmountInCents($product['amount']),
+                'quantity' => (int)$product['quantity'],
+                'vat_percentage' => (int)$product['tax_rate'],
+                'merchant_order_line_id' => $product['articleID']
+            ]);
+        }
+        return !empty($order_lines) ? $order_lines : null;
+    }
+
+    /**
+     * Creates the url parameters
+     */
+    public function getUrlParameters($token)
+    {
+        return '?' . http_build_query([
+                'token' => $token
+            ]);
+    }
+
+    /**
+     * Returns the URL of the payment provider. This has to be replaced with the real payment provider URL
+     *
+     * @return string
+     */
+    public function getProviderUrl($controller = '',$action = 'pay')
+    {
+        return Shopware()->Front()->Router()->assemble(['controller' => $controller, 'action' => $action]);
     }
 
     /**
@@ -155,7 +177,7 @@ class Helper
                     trim($info['billingaddress']['city'])
                 )
             ),
-            $info['additional']['country']['countryiso']
+            'country' => $info['additional']['country']['countryiso']
         ])];
     }
 
