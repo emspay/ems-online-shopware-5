@@ -4,6 +4,8 @@
 
     <label lang="en">EMS Online Klarna Pay Later</label>
     <label lang="de">EMS Online Klarna Pay Later</label>
+    <label lang="nl">EMS Online Klarna Pay Later</label>
+    <label lang="fr">EMS Online Klarna Pay Later</label>
 
     <version>1.0.0</version>
     <copyright>(c) 2020 EMS</copyright>

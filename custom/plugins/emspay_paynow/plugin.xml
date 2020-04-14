@@ -4,6 +4,8 @@
 
     <label lang="en">EMS Online Pay Now</label>
     <label lang="de">EMS Online Pay Now</label>
+    <label lang="nl">EMS Online Pay Now</label>
+    <label lang="fr">EMS Online Pay Now</label>
 
     <version>1.0.0</version>
     <copyright>(c) 2020 EMS</copyright>

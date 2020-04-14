@@ -1,6 +1,6 @@
 <?php
 
-namespace emspayapplepay;
+namespace emspay_applepay;
 
 use Shopware\Components\Plugin;
 use Shopware\Components\Plugin\Context\ActivateContext;
@@ -9,7 +9,7 @@ use Shopware\Components\Plugin\Context\InstallContext;
 use Shopware\Components\Plugin\Context\UninstallContext;
 use Shopware\Models\Payment\Payment;
 
-class emspayapplepay extends Plugin
+class emspay_applepay extends Plugin
 {
     /**
      * @param InstallContext $context
@@ -20,13 +20,13 @@ class emspayapplepay extends Plugin
         $installer = $this->container->get('shopware.plugin_payment_installer');
 
         $options = [
-            'name' => 'emspayapplepay',
+            'name' => 'emspay_applepay',
             'description' => 'EMS Online Apple Pay',
-            'action' => 'PaymentAction',
+            'action' => 'EmsPayApplePay',
             'active' => 1,
             'position' => 1,
             'additionalDescription' =>
-                '<img src="custom/plugins/emspayapplepay/emspayapplepay.png"/>'
+                '<img src="custom/plugins/emspay_applepay/emspay_applepay.png"/>'
                 . '<div id="payment_desc">'
                 . '  Pay using EMS Online.'
                 . '</div>'

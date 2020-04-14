@@ -3,15 +3,12 @@
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/5.3/engine/Shopware/Components/Plugin/schema/plugin.xsd">
 
     <label lang="en">EMS Online Library</label>
-    <label lang="de">EMS Online Library</label>
+    <label lang="de">EMS Online-Bibliothek</label>
+    <label lang="nl">EMS Online Bibliotheek</label>
 
     <version>1.0.0</version>
     <copyright>(c) 2020 EMS</copyright>
     <author>Ginger Payments</author>
-
-<!--    <requiredPlugins>-->
-<!--        <requiredPlugin pluginName="EMS Online" minVersion="1.2.0" maxVersion="3.5.2"/>-->
-<!--    </requiredPlugins>-->
 
     <compatibility minVersion="5.2.13"/>
 </plugin>

@@ -4,9 +4,11 @@
 
     <label lang="en">EMS Online Apple Pay</label>
     <label lang="de">EMS Online Apple Pay</label>
+    <label lang="nl">EMS Online Apple Pay</label>
+    <label lang="fr">EMS Online Apple Pay</label>
 
     <version>1.0.0</version>
-    <copyright>(c) 2019 EMS</copyright>
+    <copyright>(c) 2020 EMS</copyright>
     <author>Ginger Payments</author>
 
     <requiredPlugins>
