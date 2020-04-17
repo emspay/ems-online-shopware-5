@@ -98,7 +98,7 @@ class Helper
     public function createOrder(array $orderData, $ginger ,$payment_method = null)
     {
         $preOrder = array_filter([
-            'amount' => self::getAmountInCents($orderData['content']['0']['amount']),   // Amount in cents
+            'amount' => self::getAmountInCents($orderData['sAmount']),   // Amount in cents
             'currency' => $orderData['currency'],                                       // Currency
             'merchant_order_id' => (string)$orderData['content'][0]['id'],              // Merchant Order Id
             'return_url' => $orderData['return_url'],                                   // Return URL
@@ -106,21 +106,24 @@ class Helper
             'customer' => $this->getCustomer($orderData),                               // Customer information
             'payment_info' => [],
             'issuer_id' => [],
-            'order_lines' => $this->getOrderLines($orderData['content'],$orderData['payment_name']),
+            'order_lines' => $this->getOrderLines($orderData),
             'transactions' => array_filter([array_filter(['payment_method' => $payment_method])]),
             'webhook_url' => $orderData['webhook_url'],                                 // Webhook URL
             'extra' => ['plugin' => $this->getPluginVersion()],                         // Extra information]);
         ]);
+
         return $ginger->createOrder($preOrder);
     }
 
     /**
-     * Get Order Lines line
+     * Get Order Lines array
      * @param $products
      * @param $name
      * @return array|null
      */
-    private function getOrderLines($products,$name){
+    private function getOrderLines($order){
+        $products = $order['content'];
+        $name = $order['payment_name'];
         if (!in_array($name,['emspay_klarnapaylater','emspay_afterpay']))
         {
             return null;
@@ -134,11 +137,41 @@ class Helper
                 'currency' => self::DEFAULT_CURRENCY,
                 'amount' => self::getAmountInCents($product['amount']),
                 'quantity' => (int)$product['quantity'],
-                'vat_percentage' => (int)$product['tax_rate'],
+                'vat_percentage' => self::getAmountInCents($product['tax_rate']),
                 'merchant_order_line_id' => $product['articleID']
             ]);
         }
+        if ($order['sShippingcostsWithTax']>0) {
+            $shiping = $this->getShipingTypeInfo();
+            array_push($order_lines,
+                [
+                    'name' => (string)$shiping['name'],
+                    'type' => 'shipping_fee',
+                    'amount' => self::getAmountInCents($order['sShippingcostsWithTax']),
+                    'currency' => 'EUR',
+                    'vat_percentage' => $this->getAmountInCents($order['sShippingcostsTax']),
+                    'merchant_order_line_id' => (string)$shiping['id'],
+                    'quantity' => 1,
+                ]
+            );
+        }
+
         return !empty($order_lines) ? $order_lines : null;
+    }
+
+    /**
+     * Get the current Shiping method information
+     * @return mixed
+     */
+    private function getShipingTypeInfo(){
+        $sql = '
+                SELECT *
+                FROM s_premium_dispatch
+                WHERE id=?
+            ';
+
+        return Shopware()->Db()->fetchRow($sql, [Shopware()->Session()->sDispatch]);
+
     }
 
     /**

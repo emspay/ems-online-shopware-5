@@ -4,7 +4,6 @@ namespace emspay\Subscriber;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Enlight\Event\SubscriberInterface;
-use emspay\Components\Emspay\Helper;
 
 class StatusSubscriber implements SubscriberInterface
 {
@@ -22,11 +21,11 @@ class StatusSubscriber implements SubscriberInterface
     }
 
     /**
-     * 1
+     * Capture order on EMS side if status changed to complete deliver
      */
     public function onStatusOrderUpdate(\Enlight_Event_EventArgs $args){
         $request = $args->getSubject()->Request()->getParams();
-        if ($request['status'] == 7 && in_array($request['payment'][0]['name'],['emspaypaynow','emspay_klarnapaylater','emspay_afterpay']))
+        if ($request['status'] == 7 && in_array($request['payment'][0]['name'],['emspay_klarnapaylater','emspay_afterpay']))
         {
             $this->helper = Shopware()->Container()->get('emspay.helper'); //Create Helper
             $this->ems = $this->helper->getClient(Shopware()->Container()->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay')); //Create EMS
@@ -34,7 +33,6 @@ class StatusSubscriber implements SubscriberInterface
             $orderId = $request['transactionId'];
             $emsOrder = $this->ems->getOrder($orderId);
             $transactionId = !empty(current($emsOrder['transactions'])) ? current($emsOrder['transactions'])['id'] : null;
-//             print_r($transactionId.'+++'.$orderId);exit;
             $this->ems->captureOrderTransaction($orderId,$transactionId);
         }
         return true;
