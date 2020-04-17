@@ -97,16 +97,19 @@ class Helper
      */
     public function createOrder(array $orderData, $ginger ,$payment_method = null)
     {
+        $basket = $orderData['basket'];
+        $user = $orderData['user'];
+
         $preOrder = array_filter([
-            'amount' => self::getAmountInCents($orderData['sAmount']),   // Amount in cents
-            'currency' => $orderData['currency'],                                       // Currency
-            'merchant_order_id' => (string)$orderData['content'][0]['id'],              // Merchant Order Id
+            'amount' => self::getAmountInCents($basket['sAmount']),                      // Amount in cents
+            'currency' => $basket['sCurrencyName'],                                      // Currency
+            'merchant_order_id' => (string)current($basket['content'])['id'],                       // Merchant Order Id
             'return_url' => $orderData['return_url'],                                   // Return URL
-            'description' => $this->getOrderDescription($orderData),                    // Description
-            'customer' => $this->getCustomer($orderData),                               // Customer information
+            'description' => $this->getOrderDescription($basket),                    // Description
+            'customer' => $this->getCustomer($user),                               // Customer information
             'payment_info' => [],
             'issuer_id' => [],
-            'order_lines' => $this->getOrderLines($orderData),
+            'order_lines' => $this->getOrderLines($basket,$user['additional']['payment']['name']),
             'transactions' => array_filter([array_filter(['payment_method' => $payment_method])]),
             'webhook_url' => $orderData['webhook_url'],                                 // Webhook URL
             'extra' => ['plugin' => $this->getPluginVersion()],                         // Extra information]);
@@ -121,15 +124,14 @@ class Helper
      * @param $name
      * @return array|null
      */
-    private function getOrderLines($order){
-        $products = $order['content'];
-        $name = $order['payment_name'];
-        if (!in_array($name,['emspay_klarnapaylater','emspay_afterpay']))
+    private function getOrderLines($basket, $payment_name){
+        if (!in_array($payment_name,['emspay_klarnapaylater','emspay_afterpay']))
         {
             return null;
         }
+
         $order_lines = array();
-        foreach ($products as $product){
+        foreach ($basket['content'] as $product){
             array_push($order_lines,
             [
                 'name' => $product['articlename'],
@@ -141,15 +143,15 @@ class Helper
                 'merchant_order_line_id' => $product['articleID']
             ]);
         }
-        if ($order['sShippingcostsWithTax']>0) {
+        if ($basket['sShippingcostsWithTax']>0) {
             $shiping = $this->getShipingTypeInfo();
             array_push($order_lines,
                 [
                     'name' => (string)$shiping['name'],
                     'type' => 'shipping_fee',
-                    'amount' => self::getAmountInCents($order['sShippingcostsWithTax']),
+                    'amount' => self::getAmountInCents($basket['sShippingcostsWithTax']),
                     'currency' => 'EUR',
-                    'vat_percentage' => $this->getAmountInCents($order['sShippingcostsTax']),
+                    'vat_percentage' => $this->getAmountInCents($basket['sShippingcostsTax']),
                     'merchant_order_line_id' => (string)$shiping['id'],
                     'quantity' => 1,
                 ]
@@ -273,7 +275,7 @@ class Helper
                 )
                )
            ),
-           'locale' => self::getLocaleLowerCode($info['locale']),
+           'locale' => self::getLocaleLowerCode(Shopware()->Shop()->getLocale()->getLocale()),
            'ip_address' => self::getIpOfTheServer(),
            'additional_addresses' => self::getBillingAdress($info)
        ]);
@@ -289,7 +291,7 @@ class Helper
 
     protected function getOrderDescription($info){
         $message = 'Your order %s at %s';
-        return sprintf($message,$info['content'][0]['id'],$info['shop_name']);
+        return sprintf($message,current($info['content'])['id'],Shopware()->Shop()->getName());
     }
 
     /**

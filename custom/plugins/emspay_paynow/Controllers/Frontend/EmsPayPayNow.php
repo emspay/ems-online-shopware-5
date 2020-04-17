@@ -1,5 +1,4 @@
 <?php
-
 class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Frontend_Payment
 {
     /**
@@ -55,12 +54,20 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
         if ($emsOrder['status'] == 'error') {
             print_r("Error while creating your EMS order , please try again later"); exit;
         }
-
-        if (isset($emsOrder['order_url'])){
-            $this->redirect($emsOrder['order_url']);
-        } else {
-            print_r("Error while redirecting to the EMS payment page, please try again later"); exit;
+        if ($emsOrder['status'] == 'canceled') {
+            print_r("You order was cancelled, please try again later"); exit;
         }
+        $this->redirect($emsOrder['transactions'][0]['payment_url']);
+    }
+
+    /** Get user token
+     * @return mixed
+     */
+    public function getOrderToken(){
+        $service = $this->container->get("emspay.service");
+        $user = $this->getUser();
+        $billing = $user['billingaddress'];
+        return $service->createPaymentToken($this->getAmount(), $billing['customernumber']);
     }
 
     /**
@@ -70,26 +77,16 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
      */
     public function returnAction()
     {
-        $service = $this->container->get("emspay.service");
-        $user = $this->getUser();
-        $billing = $user['billingaddress'];
-        $token = $service->createPaymentToken($this->getAmount(), $billing['customernumber']);
-
-        if (!isset($this->emsHelper)) {
-            $this->emsHelper = new EmsHelper($this->getClassName());
-        }
         $ems_order = $this->ems->getOrder($_GET['order_id']);
+
         switch ($ems_order['status']) {
             case 'completed':
-                 $this->saveOrder(
+                $this->saveOrder(
                     $ems_order['id'],
-                    $token,
+                    $this->getOrderToken(),
                     $this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]
                 );
                 return $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
-                break;
-            case 'cancelled':
-                return $this->forward('cancel');
                 break;
             default:
                 return $this->redirect(['controller' => 'checkout']);
@@ -117,7 +114,7 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
         }
 
         try{
-            return $this->savePaymentStatus($emsOrder['id'],$token,9);
+            print_r($this->savePaymentStatus($emsOrder['id'],$token,$this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$emsOrder['status']]));
         } catch (Exception $exception){
             die("Error saving order using webhook action".$exception->getMessage());
         }
@@ -129,17 +126,11 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
      * @return array
      */
     protected function completeOrderData(){
-        $webhook = $this->emsHelper->getProviderUrl('EmsPayKlarnaPayLater','webhook'). $this->emsHelper->getUrlParameters($this->getAmount(),$this->getUser()['billingaddress']['customernumber']);
-        $return_url = $this->emsHelper->getProviderUrl('EmsPayKlarnaPayLater','return');
-        return array_merge([
-            'payment_name' => self::EMS_PAY_PLUGIN_NAME],
-            $this->getBasket(),
-            ['currency' => $this->getCurrencyShortName()],
-            ['shop_name' => Shopware()->Shop()->getName()],
-            $this->getUser(),
-            ['locale' => Shopware()->Shop()->getLocale()->getLocale()],
-            ['webhook_url' => $webhook],
-            ['return_url' => $return_url]
+        return array_merge(
+            ['basket' => $this->getBasket()],
+            ['user' => $this->getUser()],
+            ['webhook_url' => $this->emsHelper->getProviderUrl('EmsPayPayNow','webhook'). $this->emsHelper->getUrlParameters($this->getOrderToken())],
+            ['return_url' => $this->emsHelper->getProviderUrl('EmsPayPayNow','return')]
         );
     }
 }

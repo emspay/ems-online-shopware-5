@@ -81,16 +81,13 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayNow extends Shopware_Controll
 
         switch ($ems_order['status']) {
             case 'completed':
-                 $this->saveOrder(
+                $this->saveOrder(
                     $ems_order['id'],
                     $this->getOrderToken(),
                     $this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]
                 );
                 return $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
                 break;
-    //            case 'cancelled':
-    //                return $this->forward('cancel');
-    //                break;
             default:
                 return $this->redirect(['controller' => 'checkout']);
         }
@@ -117,7 +114,7 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayNow extends Shopware_Controll
         }
 
         try{
-            return $this->savePaymentStatus($emsOrder['id'],$token,$emsOrder['status']);
+            print_r($this->savePaymentStatus($emsOrder['id'],$token,$this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$emsOrder['status']]));
         } catch (Exception $exception){
             die("Error saving order using webhook action".$exception->getMessage());
         }
@@ -129,17 +126,11 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayNow extends Shopware_Controll
      * @return array
      */
     protected function completeOrderData(){
-        $webhook = $this->emsHelper->getProviderUrl('EmsPayKlarnaPayNow','webhook'). $this->emsHelper->getUrlParameters($this->getOrderToken());
-        $return_url = $this->emsHelper->getProviderUrl('EmsPayKlarnaPayNow','return');
-        return array_merge([
-            'payment_name' => self::EMS_PAY_PLUGIN_NAME],
-            $this->getBasket(),
-            ['currency' => $this->getCurrencyShortName()],
-            ['shop_name' => Shopware()->Shop()->getName()],
-            $this->getUser(),
-            ['locale' => Shopware()->Shop()->getLocale()->getLocale()],
-            ['webhook_url' => $webhook],
-            ['return_url' => $return_url]
+        return array_merge(
+            ['basket' => $this->getBasket()],
+            ['user' => $this->getUser()],
+            ['webhook_url' => $this->emsHelper->getProviderUrl('EmsPayKlarnaPayNow','webhook'). $this->emsHelper->getUrlParameters($this->getOrderToken())],
+            ['return_url' => $this->emsHelper->getProviderUrl('EmsPayKlarnaPayNow','return')]
         );
     }
 }
