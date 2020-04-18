@@ -9,7 +9,7 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
     /**
      * @var \Ginger\Ginger
      */
-    private $ems;
+    protected $ems;
 
     /**
      * @var string
@@ -46,7 +46,8 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
     public function directAction()
     {
         try{
-            $emsOrder = $this->emsHelper->createOrder($this->completeOrderData(),$this->ems);
+            $contoller = $this->Request()->getParam('controller');
+            $emsOrder = $this->emsHelper->createOrder($this->getBasket(), $contoller);
         } catch (Exception $exception) {
             print_r($exception->getMessage());exit;
         }
@@ -57,7 +58,7 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
         if ($emsOrder['status'] == 'canceled') {
             print_r("You order was cancelled, please try again later"); exit;
         }
-        $this->redirect($emsOrder['transactions'][0]['payment_url']);
+        $this->redirect(current($emsOrder['transactions'])['order_url']);
     }
 
     /**
@@ -73,7 +74,7 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
             case 'completed':
                 $this->saveOrder(
                     $ems_order['id'],
-                    $this->emsHelper->getOrderToken(),
+                    $this->emsHelper->getOrderToken($this->getBasket()['sAmount']),
                     $this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]
                 );
                 return $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
@@ -104,21 +105,9 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
         }
 
         try{
-            print_r($this->savePaymentStatus($emsOrder['id'],$token,$this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$emsOrder['status']]));
+            return ($this->savePaymentStatus($emsOrder['id'],$token,$this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$emsOrder['status']]));
         } catch (Exception $exception){
             die("Error saving order using webhook action".$exception->getMessage());
         }
-
-    }
-
-    /**
-     * Former array with Basket and User data for creating EMS Order
-     * @return array
-     */
-    protected function completeOrderData(){
-        return array_merge(
-            ['basket' => $this->getBasket()],
-            ['user' => $this->getUser()]
-              );
     }
 }
