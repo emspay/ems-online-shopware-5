@@ -9,7 +9,7 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayNow extends Shopware_Controll
     /**
      * @var \Ginger\Ginger
      */
-    private $ems;
+    protected $ems;
 
     /**
      * @var string
@@ -46,7 +46,8 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayNow extends Shopware_Controll
     public function directAction()
     {
         try{
-            $emsOrder = $this->emsHelper->createOrder($this->completeOrderData(),$this->ems, 'klarna-pay-now');
+            $contoller = $this->Request()->getParam('controller');
+            $emsOrder = $this->emsHelper->createOrder($this->getBasket(), $contoller);
         } catch (Exception $exception) {
             print_r($exception->getMessage());exit;
         }
@@ -58,16 +59,6 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayNow extends Shopware_Controll
             print_r("You order was cancelled, please try again later"); exit;
         }
         $this->redirect($emsOrder['transactions'][0]['payment_url']);
-    }
-
-    /** Get user token
-     * @return mixed
-     */
-    public function getOrderToken(){
-        $service = $this->container->get("emspay.service");
-        $user = $this->getUser();
-        $billing = $user['billingaddress'];
-        return $service->createPaymentToken($this->getAmount(), $billing['customernumber']);
     }
 
     /**
@@ -83,7 +74,7 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayNow extends Shopware_Controll
             case 'completed':
                 $this->saveOrder(
                     $ems_order['id'],
-                    $this->getOrderToken(),
+                    $this->emsHelper->getOrderToken($this->getBasket()['sAmount']),
                     $this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]
                 );
                 return $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
@@ -114,23 +105,9 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayNow extends Shopware_Controll
         }
 
         try{
-            print_r($this->savePaymentStatus($emsOrder['id'],$token,$this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$emsOrder['status']]));
+            return ($this->savePaymentStatus($emsOrder['id'],$token,$this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$emsOrder['status']]));
         } catch (Exception $exception){
             die("Error saving order using webhook action".$exception->getMessage());
         }
-
-    }
-
-    /**
-     * Former array with all required data using for creating EMS Order
-     * @return array
-     */
-    protected function completeOrderData(){
-        return array_merge(
-            ['basket' => $this->getBasket()],
-            ['user' => $this->getUser()],
-            ['webhook_url' => $this->emsHelper->getProviderUrl('EmsPayKlarnaPayNow','webhook'). $this->emsHelper->getUrlParameters($this->getOrderToken())],
-            ['return_url' => $this->emsHelper->getProviderUrl('EmsPayKlarnaPayNow','return')]
-        );
     }
 }
