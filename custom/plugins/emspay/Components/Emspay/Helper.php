@@ -98,25 +98,56 @@ class Helper
     public function createOrder(array $orderData, $ginger ,$payment_method = null)
     {
         $basket = $orderData['basket'];
-        $user = $orderData['user'];
+        $user = Shopware()->Modules()->Admin()->sGetUserData();
 
         $preOrder = array_filter([
-            'amount' => self::getAmountInCents($basket['sAmount']),                      // Amount in cents
-            'currency' => $basket['sCurrencyName'],                                      // Currency
-            'merchant_order_id' => (string)current($basket['content'])['id'],                       // Merchant Order Id
-            'return_url' => $orderData['return_url'],                                   // Return URL
-            'description' => $this->getOrderDescription($basket),                    // Description
-            'customer' => $this->getCustomer($user),                               // Customer information
-            'payment_info' => [],
-            'issuer_id' => [],
-            'order_lines' => $this->getOrderLines($basket,$user['additional']['payment']['name']),
-            'transactions' => array_filter([array_filter(['payment_method' => $payment_method])]),
-            'webhook_url' => $orderData['webhook_url'],                                 // Webhook URL
-            'extra' => ['plugin' => $this->getPluginVersion()],                         // Extra information]);
+            'amount' => self::getAmountInCents($basket['sAmount']),                                 // Amount in cents
+            'currency' => $basket['sCurrencyName'],                                                 // Currency
+            'merchant_order_id' => (string)1,                                                        // Merchant Order Id
+            'description' => $this->getOrderDescription($basket),                                   // Description
+            'customer' => $this->getCustomer($user),                                                // Customer information
+            'payment_info' => [],                                                                   //
+            'issuer_id' => [],                                                                      //
+            'order_lines' => $this->getOrderLines($basket,$user['additional']['payment']['name']),  // Order Lines
+            'transactions' => array_filter([array_filter(['payment_method' => $payment_method])]),  // Transactions Array
+            'return_url' => $this->getReturnUrl(),                                                  // Return URL
+            'webhook_url' => $this->getWebhookUrl($user,$basket['sAmount']),                        // Webhook URL
+            'extra' => ['plugin' => $this->getPluginVersion()],                                     // Extra information]);
         ]);
+           // print_r(get_class_methods(Shopware()->Modules()->Order()));exit;
 
+        //print_r($preOrder);exit;
         return $ginger->createOrder($preOrder);
     }
+
+    /**
+     * Get Return Url
+     * @return string
+     */
+
+    private function getReturnUrl(){
+        return $this->getProviderUrl('123','return');
+    }
+
+    /**
+     * Get Webhook Url
+     * @param $user
+     * @param $amount
+     * @return string
+     */
+    private function getWebhookUrl($user,$amount){
+        return $this->getProviderUrl('123','webhook'). $this->getUrlParameters($this->getOrderToken($user,$amount));
+    }
+
+    /** Get user token
+     * @return mixed
+     */
+    public function getOrderToken($user, $amount){
+            $service = Shopware()->Container()->get("emspay.service");
+            $billing = $user['billingaddress'];
+            return $service->createPaymentToken($user,$amount, $billing['customernumber']);
+    }
+
 
     /**
      * Get Order Lines array
@@ -166,14 +197,7 @@ class Helper
      * @return mixed
      */
     private function getShipingTypeInfo(){
-        $sql = '
-                SELECT *
-                FROM s_premium_dispatch
-                WHERE id=?
-            ';
-
-        return Shopware()->Db()->fetchRow($sql, [Shopware()->Session()->sDispatch]);
-
+        return Shopware()->Modules()->Admin()->sGetPremiumDispatch(Shopware()->Session()->sDispatch);
     }
 
     /**

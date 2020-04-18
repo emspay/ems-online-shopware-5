@@ -46,7 +46,7 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayLater extends Shopware_Contro
     public function directAction()
     {
         try{
-            $emsOrder = $this->emsHelper->createOrder($this->completeOrderData(),$this->ems, 'klarna-pay-later');
+            $emsOrder = $this->emsHelper->createOrder($this->completeOrderData(),$this->ems,'klarna-pay-later');
         } catch (Exception $exception) {
             print_r($exception->getMessage());exit;
         }
@@ -60,16 +60,6 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayLater extends Shopware_Contro
         $this->redirect($emsOrder['transactions'][0]['payment_url']);
     }
 
-    /** Get user token
-     * @return mixed
-     */
-    public function getOrderToken(){
-        $service = $this->container->get("emspay.service");
-        $user = $this->getUser();
-        $billing = $user['billingaddress'];
-        return $service->createPaymentToken($this->getAmount(), $billing['customernumber']);
-    }
-
     /**
      * Return action method
      *
@@ -81,9 +71,9 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayLater extends Shopware_Contro
 
         switch ($ems_order['status']) {
             case 'completed':
-                 $this->saveOrder(
+                $this->saveOrder(
                     $ems_order['id'],
-                    $this->getOrderToken(),
+                    $this->emsHelper->getOrderToken(),
                     $this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]
                 );
                 return $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
@@ -122,15 +112,13 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayLater extends Shopware_Contro
     }
 
     /**
-     * Former array with all required data using for creating EMS Order
+     * Former array with Basket and User data for creating EMS Order
      * @return array
      */
     protected function completeOrderData(){
         return array_merge(
             ['basket' => $this->getBasket()],
-            ['user' => $this->getUser()],
-            ['webhook_url' => $this->emsHelper->getProviderUrl('EmsPayKlarnaPayLater','webhook'). $this->emsHelper->getUrlParameters($this->getOrderToken())],
-            ['return_url' => $this->emsHelper->getProviderUrl('EmsPayKlarnaPayLater','return')]
+            ['user' => $this->getUser()]
         );
     }
 }

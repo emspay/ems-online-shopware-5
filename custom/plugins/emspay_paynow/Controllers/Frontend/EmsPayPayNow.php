@@ -60,16 +60,6 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
         $this->redirect($emsOrder['transactions'][0]['payment_url']);
     }
 
-    /** Get user token
-     * @return mixed
-     */
-    public function getOrderToken(){
-        $service = $this->container->get("emspay.service");
-        $user = $this->getUser();
-        $billing = $user['billingaddress'];
-        return $service->createPaymentToken($this->getAmount(), $billing['customernumber']);
-    }
-
     /**
      * Return action method
      *
@@ -83,7 +73,7 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
             case 'completed':
                 $this->saveOrder(
                     $ems_order['id'],
-                    $this->getOrderToken(),
+                    $this->emsHelper->getOrderToken(),
                     $this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]
                 );
                 return $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
@@ -122,15 +112,13 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
     }
 
     /**
-     * Former array with all required data using for creating EMS Order
+     * Former array with Basket and User data for creating EMS Order
      * @return array
      */
     protected function completeOrderData(){
         return array_merge(
             ['basket' => $this->getBasket()],
-            ['user' => $this->getUser()],
-            ['webhook_url' => $this->emsHelper->getProviderUrl('EmsPayPayNow','webhook'). $this->emsHelper->getUrlParameters($this->getOrderToken())],
-            ['return_url' => $this->emsHelper->getProviderUrl('EmsPayPayNow','return')]
-        );
+            ['user' => $this->getUser()]
+              );
     }
 }
