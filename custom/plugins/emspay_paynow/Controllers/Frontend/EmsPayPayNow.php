@@ -58,7 +58,7 @@ class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Fr
         if ($emsOrder['status'] == 'canceled') {
             print_r("You order was cancelled, please try again later"); exit;
         }
-        $this->redirect(current($emsOrder['transactions'])['order_url']);
+        $this->redirect($emsOrder['order_url']);
     }
 
     /**
