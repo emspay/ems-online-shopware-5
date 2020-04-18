@@ -9,7 +9,7 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayLater extends Shopware_Contro
     /**
      * @var \Ginger\Ginger
      */
-    private $ems;
+    protected $ems;
 
     /**
      * @var string
@@ -47,7 +47,7 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayLater extends Shopware_Contro
     {
         try{
             $contoller = $this->Request()->getParam('controller');
-            $emsOrder = $this->emsHelper->createOrder($this->completeOrderData(), $contoller,'klarna-pay-later');
+            $emsOrder = $this->emsHelper->createOrder($this->getBasket(), $contoller);
         } catch (Exception $exception) {
             print_r($exception->getMessage());exit;
         }
@@ -105,21 +105,9 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayLater extends Shopware_Contro
         }
 
         try{
-            print_r($this->savePaymentStatus($emsOrder['id'],$token,$this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$emsOrder['status']]));
+            return ($this->savePaymentStatus($emsOrder['id'],$token,$this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$emsOrder['status']]));
         } catch (Exception $exception){
             die("Error saving order using webhook action".$exception->getMessage());
         }
-
-    }
-
-    /**
-     * Former array with Basket and User data for creating EMS Order
-     * @return array
-     */
-    protected function completeOrderData(){
-        return array_merge(
-            ['basket' => $this->getBasket()],
-            ['user' => $this->getUser()]
-        );
     }
 }

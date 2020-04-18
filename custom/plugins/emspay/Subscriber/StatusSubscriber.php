@@ -27,7 +27,7 @@ class StatusSubscriber implements SubscriberInterface
         $request = $args->getSubject()->Request()->getParams();
         if ($request['status'] == 7 && $request['status']!=current($request['orderStatus'])['id'] && in_array(current($request['payment'])['name'],['emspay_klarnapaylater','emspay_afterpay']))
         {
-            $this->helper = Shopware()->Container()->get('emspay.helper'); //Create Helper
+            $this->helper = Shopware()->Container()->get('emspay.helper');                                                                          //Create Helper
             $this->ems = $this->helper->getClient(Shopware()->Container()->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay')); //Create EMS
 
             $orderId = $request['transactionId'];

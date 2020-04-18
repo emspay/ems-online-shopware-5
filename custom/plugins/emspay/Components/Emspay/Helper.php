@@ -8,6 +8,16 @@ use Ginger\Ginger;
 class Helper
 {
     /**
+     *  Translator Shopware Payment Name into Ems Payment Names
+     */
+    const SHOPWARE_TO_EMS_PAYMENTS =
+        [
+            'applepay' => 'apple-pay',
+            'klarnapaylater' => 'klarna-pay-later',
+            'klarnapaynow' => 'klarna-pay-now',
+            'paynow' => null,
+        ];
+    /**
      * Translator EMS statuses into Shopware statuses
      *
      */
@@ -95,14 +105,14 @@ class Helper
      * @param array
      * @return array
      */
-    public function createOrder(array $orderData, $controller, $payment_method = null)
+    public function createOrder(array $basket, $controller)
     {
         $ginger = $this->getClient(Shopware()->Container()->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay'));
 
-        $basket = $orderData['basket'];
         $user = Shopware()->Modules()->Admin()->sGetUserData();
 
         $orderId = Shopware()->Modules()->Order()->sGetOrderNumber();
+        $payment_method = self::SHOPWARE_TO_EMS_PAYMENTS[explode('emspay_',$user['additional']['payment']['name'])[1]];
 
         $preOrder = array_filter([
             'amount' => self::getAmountInCents($basket['sAmount']),                                 // Amount in cents
@@ -119,7 +129,6 @@ class Helper
             'extra' => ['plugin' => $this->getPluginVersion()],                                     // Extra information]);
         ]);
 
-       //    print_r($preOrder);exit;
         return $ginger->createOrder($preOrder);
     }
 
@@ -128,7 +137,7 @@ class Helper
      * @return string
      */
 
-    private function getReturnUrl($controller){
+    protected function getReturnUrl($controller){
         return $this->getProviderUrl($controller,'return');
     }
 
@@ -138,7 +147,7 @@ class Helper
      * @param $amount
      * @return string
      */
-    private function getWebhookUrl($controller,$user,$amount){
+    protected function getWebhookUrl($controller,$user,$amount){
         return $this->getProviderUrl($controller,'webhook'). $this->getUrlParameters($this->getOrderToken($amount));
     }
 
@@ -159,7 +168,7 @@ class Helper
      * @param $name
      * @return array|null
      */
-    private function getOrderLines($basket, $payment_name){
+    protected function getOrderLines($basket, $payment_name){
         if (!in_array($payment_name,['emspay_klarnapaylater','emspay_afterpay']))
         {
             return null;
@@ -200,7 +209,7 @@ class Helper
      * Get the current Shiping method information
      * @return mixed
      */
-    private function getShipingTypeInfo(){
+    protected function getShipingTypeInfo(){
         return Shopware()->Modules()->Admin()->sGetPremiumDispatch(Shopware()->Session()->sDispatch);
     }
 
