@@ -21,7 +21,7 @@ class CheckoutSubscriber implements SubscriberInterface
     }
 
     /**
-     * 1
+     * Update order on the EMS Side with orderId on FinishAction
      */
     public function onCheckoutFinishUpdate(\Enlight_Event_EventArgs $args){
         $this->helper = Shopware()->Container()->get('emspay.helper');                                                                          //Create Helper
