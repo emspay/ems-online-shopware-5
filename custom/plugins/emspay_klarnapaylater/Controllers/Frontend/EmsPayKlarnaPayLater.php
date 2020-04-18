@@ -46,7 +46,8 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayLater extends Shopware_Contro
     public function directAction()
     {
         try{
-            $emsOrder = $this->emsHelper->createOrder($this->completeOrderData(),$this->ems,'klarna-pay-later');
+            $contoller = $this->Request()->getParam('controller');
+            $emsOrder = $this->emsHelper->createOrder($this->completeOrderData(), $contoller,'klarna-pay-later');
         } catch (Exception $exception) {
             print_r($exception->getMessage());exit;
         }
@@ -73,7 +74,7 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayLater extends Shopware_Contro
             case 'completed':
                 $this->saveOrder(
                     $ems_order['id'],
-                    $this->emsHelper->getOrderToken(),
+                    $this->emsHelper->getOrderToken($this->getBasket()['sAmount']),
                     $this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]
                 );
                 return $this->redirect(['controller' => 'checkout', 'action' => 'finish']);

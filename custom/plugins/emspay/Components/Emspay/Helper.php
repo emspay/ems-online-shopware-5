@@ -95,28 +95,31 @@ class Helper
      * @param array
      * @return array
      */
-    public function createOrder(array $orderData, $ginger ,$payment_method = null)
+    public function createOrder(array $orderData, $controller, $payment_method = null)
     {
+        $ginger = $this->getClient(Shopware()->Container()->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay'));
+
         $basket = $orderData['basket'];
         $user = Shopware()->Modules()->Admin()->sGetUserData();
+
+        $orderId = Shopware()->Modules()->Order()->sGetOrderNumber();
 
         $preOrder = array_filter([
             'amount' => self::getAmountInCents($basket['sAmount']),                                 // Amount in cents
             'currency' => $basket['sCurrencyName'],                                                 // Currency
-            'merchant_order_id' => (string)1,                                                        // Merchant Order Id
-            'description' => $this->getOrderDescription($basket),                                   // Description
+            'merchant_order_id' => (string)$orderId,                                                // Merchant Order Id
+            'description' => $this->getOrderDescription($orderId),                                  // Description
             'customer' => $this->getCustomer($user),                                                // Customer information
             'payment_info' => [],                                                                   //
             'issuer_id' => [],                                                                      //
             'order_lines' => $this->getOrderLines($basket,$user['additional']['payment']['name']),  // Order Lines
             'transactions' => array_filter([array_filter(['payment_method' => $payment_method])]),  // Transactions Array
-            'return_url' => $this->getReturnUrl(),                                                  // Return URL
-            'webhook_url' => $this->getWebhookUrl($user,$basket['sAmount']),                        // Webhook URL
+            'return_url' => $this->getReturnUrl($controller),                                       // Return URL
+            'webhook_url' => $this->getWebhookUrl($controller,$user,$basket['sAmount']),            // Webhook URL
             'extra' => ['plugin' => $this->getPluginVersion()],                                     // Extra information]);
         ]);
-           // print_r(get_class_methods(Shopware()->Modules()->Order()));exit;
 
-        //print_r($preOrder);exit;
+       //    print_r($preOrder);exit;
         return $ginger->createOrder($preOrder);
     }
 
@@ -125,8 +128,8 @@ class Helper
      * @return string
      */
 
-    private function getReturnUrl(){
-        return $this->getProviderUrl('123','return');
+    private function getReturnUrl($controller){
+        return $this->getProviderUrl($controller,'return');
     }
 
     /**
@@ -135,17 +138,18 @@ class Helper
      * @param $amount
      * @return string
      */
-    private function getWebhookUrl($user,$amount){
-        return $this->getProviderUrl('123','webhook'). $this->getUrlParameters($this->getOrderToken($user,$amount));
+    private function getWebhookUrl($controller,$user,$amount){
+        return $this->getProviderUrl($controller,'webhook'). $this->getUrlParameters($this->getOrderToken($amount));
     }
 
     /** Get user token
      * @return mixed
      */
-    public function getOrderToken($user, $amount){
-            $service = Shopware()->Container()->get("emspay.service");
-            $billing = $user['billingaddress'];
-            return $service->createPaymentToken($user,$amount, $billing['customernumber']);
+    public function getOrderToken($amount){
+        $service = Shopware()->Container()->get("emspay.service");
+        $user = Shopware()->Modules()->Admin()->sGetUserData();
+        $billing = $user['billingaddress'];
+        return $service->createPaymentToken($user, $amount, $billing['customernumber']);
     }
 
 
@@ -170,7 +174,7 @@ class Helper
                 'currency' => self::DEFAULT_CURRENCY,
                 'amount' => self::getAmountInCents($product['amount']),
                 'quantity' => (int)$product['quantity'],
-                'vat_percentage' => self::getAmountInCents($product['tax_rate']),
+                'vat_percentage' => (int)self::getAmountInCents($product['tax_rate']),
                 'merchant_order_line_id' => $product['articleID']
             ]);
         }
@@ -182,7 +186,7 @@ class Helper
                     'type' => 'shipping_fee',
                     'amount' => self::getAmountInCents($basket['sShippingcostsWithTax']),
                     'currency' => 'EUR',
-                    'vat_percentage' => $this->getAmountInCents($basket['sShippingcostsTax']),
+                    'vat_percentage' => (int)$this->getAmountInCents($basket['sShippingcostsTax']),
                     'merchant_order_line_id' => (string)$shiping['id'],
                     'quantity' => 1,
                 ]
@@ -313,9 +317,9 @@ class Helper
      * @return string
      */
 
-    protected function getOrderDescription($info){
+    public function getOrderDescription($orderId){
         $message = 'Your order %s at %s';
-        return sprintf($message,current($info['content'])['id'],Shopware()->Shop()->getName());
+        return sprintf($message,(string) $orderId ,Shopware()->Shop()->getName());
     }
 
     /**
