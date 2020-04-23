@@ -15,5 +15,8 @@
         <service id="emspay_events.subscriber.checkout_subscriber" class="emspay\Subscriber\CheckoutSubscriber">
             <tag name="shopware.event_subscriber"/>
         </service>
+        <service id="emspay_events.subscriber.idealissuer_subscriber" class="emspay\Subscriber\IDealIssuerSubscriber">
+            <tag name="shopware.event_subscriber"/>
+        </service>
     </services>
 </container>

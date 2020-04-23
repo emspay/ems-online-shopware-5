@@ -16,6 +16,7 @@ class Helper
             'klarnapaylater' => 'klarna-pay-later',
             'klarnapaynow' => 'klarna-pay-now',
             'paynow' => null,
+            'ideal' => 'ideal',
         ];
     /**
      * Translator EMS statuses into Shopware statuses
@@ -120,16 +121,25 @@ class Helper
             'merchant_order_id' => (string)$orderId,                                                // Merchant Order Id
             'description' => $this->getOrderDescription($orderId),                                  // Description
             'customer' => $this->getCustomer($user),                                                // Customer information
-            'payment_info' => [],                                                                   //
-            'issuer_id' => [],                                                                      //
+            'payment_info' => [],                                                                   //             //
             'order_lines' => $this->getOrderLines($basket,$user['additional']['payment']['name']),  // Order Lines
-            'transactions' => array_filter([array_filter(['payment_method' => $payment_method])]),  // Transactions Array
+            'transactions' => $this->getTransactions($payment_method),  // Transactions Array
             'return_url' => $this->getReturnUrl($controller),                                       // Return URL
             'webhook_url' => $this->getWebhookUrl($controller,$user,$basket['sAmount']),            // Webhook URL
             'extra' => ['plugin' => $this->getPluginVersion()],                                     // Extra information]);
         ]);
-
+     //  print_r($preOrder);exit;
         return $ginger->createOrder($preOrder);
+    }
+
+    protected function getTransactions($payment){
+    //    print_r(['payment_method_details' => ['issuer_id' => $this->getIssuerId()]]);exit;
+        return array_filter([
+            array_filter([
+                'payment_method' => $payment,
+                'payment_method_details' => array_filter(['issuer_id' => $this->getIssuerId($payment)])
+                ])
+        ]);
     }
 
     /**
@@ -139,6 +149,15 @@ class Helper
 
     protected function getReturnUrl($controller){
         return $this->getProviderUrl($controller,'return');
+    }
+
+    /**
+     * Get Issuer Id for iDEAL payment method
+     * @return mixed
+     */
+    protected function getIssuerId($payment){
+        if ($payment != 'ideal') {return null;}
+        return $_SESSION['ems_issuer_id'];
     }
 
     /**
