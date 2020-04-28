@@ -53,7 +53,7 @@ class Helper
      */
 
     public function __construct(){
-        require_once ("ginger-php/vendor/autoload.php");
+        require_once ("Library/vendor/autoload.php");
     }
 
     /**
@@ -64,26 +64,9 @@ class Helper
      * @param boolean $useBundle
      * @return \Ginger\ApiClient
      */
-    protected function getGignerClinet($apiKey, $useBundle = false)
+    protected function getGignerClinet($apiKey)
     {
-        $ems = \Ginger\Ginger::createClient(
-            self::GINGER_ENDPOINT,
-            $apiKey,
-            $useBundle ?
-                [
-                    CURLOPT_CAINFO => self::getCaCertPath()
-                ] : []
-        );
-
-        return $ems;
-    }
-
-    /**
-     *  function get Cacert.pem path
-     */
-
-    protected static function getCaCertPath(){
-        return dirname(__FILE__).'/ginger-php/assets/cacert.pem';
+        return \Ginger\Ginger::createClient(self::GINGER_ENDPOINT,$apiKey);
     }
 
     /**
@@ -94,7 +77,7 @@ class Helper
      */
     public function getClient($config)
     {
-        return $this->getGignerClinet($config['emsonline_apikey'],$config['emsonline_bundle_cacert']);
+        return $this->getGignerClinet($config['emsonline_apikey']);
     }
 
     /**

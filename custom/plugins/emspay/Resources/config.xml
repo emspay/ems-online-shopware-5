@@ -13,17 +13,5 @@
             <description lang="nl">EMS PAY API-sleutel is vereist. Dupliceer uw ENS PAY API-sleutels van Merchant Portal.</description>
             <description lang="fr">La clé API EMS PAY est requise. Dupliquez vos clés API ENS PAY à partir du portail marchand.</description>
         </element>
-        <element type="boolean" scope="locale">
-            <name>emsonline_bundle_cacert</name>
-            <label lang="de">EMS Online CaCert</label>
-            <label lang="en">EMS Online CaCert</label>
-            <label lang="nl">EMS Online CaCert</label>
-            <label lang="fr">EMS Online CaCert</label>
-            <value>true</value>
-            <description lang="de">cURL CA bündel benutzen.</description>
-            <description lang="en">Use the cURL CA bundle.</description>
-            <description lang="nl">Gebruik de cURL CA-bundle.</description>
-            <description lang="fr">Utilisez le bundle cURL CA.</description>
-        </element>
     </elements>
 </config>
