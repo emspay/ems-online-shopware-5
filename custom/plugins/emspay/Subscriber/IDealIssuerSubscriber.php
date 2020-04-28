@@ -26,7 +26,12 @@ class IDealIssuerSubscriber implements SubscriberInterface
         $this->helper = Shopware()->Container()->get('emspay.helper');                                                                          //Create Helper
         $this->ems = $this->helper->getClient(Shopware()->Container()->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay')); //Create EMS
 
-        $issuers_array = $this->ems->getIdealIssuers();
+        try {
+            $issuers_array = $this->ems->getIdealIssuers();
+        }catch (\Exception $exception) {
+            print_r($exception->getMessage()); exit;
+        }
+
         $subject = $args->getSubject();
         $payments = $subject->View()->getAssign()['sPayments'];
 

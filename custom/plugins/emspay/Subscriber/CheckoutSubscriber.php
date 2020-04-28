@@ -24,6 +24,11 @@ class CheckoutSubscriber implements SubscriberInterface
      * Update order on the EMS Side with orderId on FinishAction
      */
     public function onCheckoutFinishUpdate(\Enlight_Event_EventArgs $args){
+        //Check if selected payment method is EMS Online
+        if (explode('_', $args->getSubject()->View()->getAssign()['sPayment']['name'])[0] != 'emspay'){
+            return null;
+        }
+
         $this->helper = Shopware()->Container()->get('emspay.helper');                                                                          //Create Helper
         $this->ems = $this->helper->getClient(Shopware()->Container()->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay')); //Create EMS
 

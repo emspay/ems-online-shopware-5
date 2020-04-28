@@ -1,7 +1,4 @@
 <?php
-
-namespace emspay_applepay\Controllers\Frontend;
-
 class Shopware_Controllers_Frontend_EmsPayApplePay extends Shopware_Controllers_Frontend_Payment
 {
     /**

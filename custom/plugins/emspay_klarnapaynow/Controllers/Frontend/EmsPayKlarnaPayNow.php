@@ -1,7 +1,4 @@
 <?php
-
-namespace emspay_klarnapaynow\Controllers\Frontend;
-
 class Shopware_Controllers_Frontend_EmsPayKlarnaPayNow extends Shopware_Controllers_Frontend_Payment
 {
     /**
