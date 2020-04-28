@@ -57,7 +57,7 @@ class emspay extends Plugin
      * @param Payment[] $payments
      * @param $active bool
      */
-    protected function setActiveFlag($payments, $active)
+    private function setActiveFlag($payments, $active)
     {
         $em = $this->container->get('models');
 
