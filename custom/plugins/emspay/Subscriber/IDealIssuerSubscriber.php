@@ -37,7 +37,7 @@ class IDealIssuerSubscriber implements SubscriberInterface
 
         foreach ($payments as $key => $payment){
             if ($payment['name'] == 'emspay_ideal'){
-                $payment['additionaldescription'] .= $this->getIssuerIdSelector($payment['name'],$issuers_array);
+                $payment['additionaldescription'] .= $this->getIssuerIdSelector($issuers_array);
                 $payments[$key] = $payment;
             }
         }
@@ -50,8 +50,8 @@ class IDealIssuerSubscriber implements SubscriberInterface
      * @param $issuers_array
      * @return string
      */
-    private function getIssuerIdSelector($pm,$issuers_array){
-        $action_link = $this->helper->getProviderUrl('EmsPayIDeal', 'processissuer');
+    private function getIssuerIdSelector($issuers_array){
+        $action_link = $this->helper->getProviderUrl('Gateway', 'processissuer');
         $content = '<span>Choose your bank:</span><br>';
         $content .= '<select name="issuer" onchange="location = this.value">';
         foreach ($issuers_array as $issuer) {

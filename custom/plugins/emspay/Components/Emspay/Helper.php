@@ -98,42 +98,10 @@ class Helper
     }
 
     /**
-     * Generate EMS Apple Pay.
-     *
-     * @param array
-     * @return array
-     */
-    public function createOrder($controller)
-    {
-        $ginger = $this->getClient(Shopware()->Container()->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay'));
-
-        $basket = self::getBasket();
-        $user = self::getUser();
-
-        $payment_method = self::SHOPWARE_TO_EMS_PAYMENTS[explode('emspay_',$user['additional']['payment']['name'])[1]];
-
-        $preOrder = array_filter([
-            'amount' => self::getAmountInCents($basket['sAmount']),                                 // Amount in cents
-            'currency' => $this->getCurrencyName(),                                                 // Currency
-            'merchant_order_id' => self::getOrderNumber(),                                          // Merchant Order Id
-            'description' => $this->getOrderDescription(self::getOrderNumber()),                    // Description
-            'customer' => $this->getCustomer($user),                                                // Customer information
-            'payment_info' => [],                                                                   //             //
-            'order_lines' => $this->getOrderLines($basket,$user['additional']['payment']['name']),  // Order Lines
-            'transactions' => $this->getTransactions($payment_method),                                // Transactions Array
-            'return_url' => $this->getReturnUrl($controller),                                       // Return URL
-            'webhook_url' => $this->getWebhookUrl($controller,$user,$basket['sAmount']),            // Webhook URL
-            'extra' => ['plugin' => $this->getPluginVersion()],                                     // Extra information]);
-        ]);
-     //  print_r($preOrder);exit;
-        return $ginger->createOrder($preOrder);
-    }
-
-    /**
      * Get Currency Short Name
      * @return mixed
      */
-    protected function getCurrencyName(){
+    public function getCurrencyName(){
         return self::getBasket()['sCurrencyName'];
     }
 
@@ -141,7 +109,7 @@ class Helper
      * Get ShopWare Order Number
      * @return mixed
      */
-    protected function getOrderNumber(){
+    public function getOrderNumber(){
         return Shopware()->Modules()->Order()->sGetOrderNumber();
     }
 
@@ -149,7 +117,7 @@ class Helper
      * Get ShopWare user from order
      * @return mixed
      */
-    protected function getUser(){
+    public function getUser(){
         return Shopware()->Modules()->Admin()->sGetUserData();
     }
 
@@ -157,7 +125,7 @@ class Helper
      * Get ShopWare basket from order
      * @return mixed
      */
-    protected function getBasket(){
+    public function getBasket(){
         return Shopware()->Session()->sOrderVariables['sBasket'];
     }
 
@@ -166,7 +134,7 @@ class Helper
      * @param $payment
      * @return array
      */
-    protected function getTransactions($payment){
+    public function getTransactions($payment){
         return array_filter([
             array_filter([
                 'payment_method' => $payment,
@@ -180,7 +148,7 @@ class Helper
      * @return string
      */
 
-    protected function getReturnUrl($controller){
+    public function getReturnUrl($controller){
         return $this->getProviderUrl($controller,'return');
     }
 
@@ -188,7 +156,7 @@ class Helper
      * Get Issuer Id for iDEAL payment method
      * @return mixed
      */
-    protected function getIssuerId($payment){
+    public function getIssuerId($payment){
         if ($payment != 'ideal') {return null;}
         return $_SESSION['ems_issuer_id'];
     }
@@ -199,7 +167,7 @@ class Helper
      * @param $amount
      * @return string
      */
-    protected function getWebhookUrl($controller,$user,$amount){
+    public function getWebhookUrl($controller,$user,$amount){
         return $this->getProviderUrl($controller,'webhook'). $this->getUrlParameters($this->getOrderToken($amount));
     }
 
@@ -221,7 +189,7 @@ class Helper
      * @param $name
      * @return array|null
      */
-    protected function getOrderLines($basket, $payment_name){
+    public function getOrderLines($basket, $payment_name){
         if (!in_array($payment_name,['emspay_klarnapaylater','emspay_afterpay']))
         {
             return null;
@@ -262,7 +230,7 @@ class Helper
      * Get the current Shiping method information
      * @return mixed
      */
-    protected function getShipingTypeInfo(){
+    public function getShipingTypeInfo(){
         return Shopware()->Modules()->Admin()->sGetPremiumDispatch(Shopware()->Session()->sDispatch);
     }
 
@@ -312,7 +280,7 @@ class Helper
      * @return string
      */
 
-    protected function getPluginVersion()
+    public function getPluginVersion()
     {
         return sprintf('ShopWare v%s', self::PLUGIN_VERSION);
     }
@@ -323,7 +291,7 @@ class Helper
      * @return mixed
      */
 
-    protected function getIpOfTheServer(){
+    public function getIpOfTheServer(){
         return filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
     }
 
@@ -334,7 +302,7 @@ class Helper
      * @return mixed
      */
 
-    protected function getLocaleLowerCode($locale){
+    public function getLocaleLowerCode($locale){
         list($low,) = explode('_',$locale);
         return $low;
     }
@@ -346,7 +314,7 @@ class Helper
      * @return array
      *
      */
-    protected function getCustomer($info){
+    public function getCustomer($info){
        return array_filter([
            'address_type' => 'customer',
            'country' => $info['additional']['country']['countryiso'],
@@ -391,7 +359,7 @@ class Helper
      * @return int
      */
 
-   protected function getAmountInCents($amount)
+   public function getAmountInCents($amount)
     {
         return (int) round ((float) $amount * 100);
     }
