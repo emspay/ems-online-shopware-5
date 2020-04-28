@@ -19,6 +19,7 @@
             <label lang="en">EMS Online CaCert</label>
             <label lang="nl">EMS Online CaCert</label>
             <label lang="fr">EMS Online CaCert</label>
+            <value>true</value>
             <description lang="de">cURL CA bündel benutzen.</description>
             <description lang="en">Use the cURL CA bundle.</description>
             <description lang="nl">Gebruik de cURL CA-bundle.</description>
