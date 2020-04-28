@@ -1,6 +1,6 @@
 <?php
 
-namespace Ginger\emspay_paynow\Contollers\Frontend;
+namespace emspay_paynow\Contollers\Frontend;
 
 class Shopware_Controllers_Frontend_EmsPayPayNow extends Shopware_Controllers_Frontend_Payment
 {

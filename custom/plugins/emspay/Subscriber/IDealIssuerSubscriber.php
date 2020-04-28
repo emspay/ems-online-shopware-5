@@ -1,6 +1,6 @@
 <?php
 
-namespace Ginger\emspay\Subscriber;
+namespace emspay\Subscriber;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Enlight\Event\SubscriberInterface;

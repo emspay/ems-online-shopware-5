@@ -1,6 +1,6 @@
 <?php
 
-namespace Ginger\emspay_applepay;
+namespace emspay_applepay;
 
 use Shopware\Components\Plugin;
 use Shopware\Components\Plugin\Context\ActivateContext;
