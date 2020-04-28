@@ -49,7 +49,7 @@ class CheckoutSubscriber implements SubscriberInterface
                 $order_line['vat_percentage'] = intval($order_line['vat_percentage']);
                 $ems_order['order_lines'][$key] = $order_line;
             }
-        $this->ems->updateOrder($ems_order['id'].'/',$ems_order);
+        $this->ems->updateOrder($ems_order['id'],$ems_order);
         } catch (\Exception $exception){
             print_r($exception->getMessage());exit;
         }
