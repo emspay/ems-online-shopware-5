@@ -47,7 +47,7 @@ class Shopware_Controllers_Frontend_EmsPayApplePay extends Shopware_Controllers_
     {
         try{
             $contoller = $this->Request()->getParam('controller');
-            $emsOrder = $this->emsHelper->createOrder($this->getBasket(), $contoller);
+            $emsOrder = $this->emsHelper->createOrder($contoller);
         } catch (Exception $exception) {
             print_r($exception->getMessage());exit;
         }
@@ -75,7 +75,7 @@ class Shopware_Controllers_Frontend_EmsPayApplePay extends Shopware_Controllers_
             case 'completed':
                 $this->saveOrder(
                     $ems_order['id'],
-                    $this->emsHelper->getOrderToken($this->getBasket()['sAmount']),
+                    $this->emsHelper->getOrderToken(),
                     $this->emsHelper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]
                 );
                 return $this->redirect(['controller' => 'checkout', 'action' => 'finish']);

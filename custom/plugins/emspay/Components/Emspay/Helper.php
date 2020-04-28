@@ -103,20 +103,20 @@ class Helper
      * @param array
      * @return array
      */
-    public function createOrder(array $basket, $controller)
+    public function createOrder($controller)
     {
         $ginger = $this->getClient(Shopware()->Container()->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay'));
 
-        $user = Shopware()->Modules()->Admin()->sGetUserData();
+        $basket = self::getBasket();
+        $user = self::getUser();
 
-        $orderId = Shopware()->Modules()->Order()->sGetOrderNumber();
         $payment_method = self::SHOPWARE_TO_EMS_PAYMENTS[explode('emspay_',$user['additional']['payment']['name'])[1]];
 
         $preOrder = array_filter([
             'amount' => self::getAmountInCents($basket['sAmount']),                                 // Amount in cents
-            'currency' => $basket['sCurrencyName'],                                                 // Currency
-            'merchant_order_id' => (string)$orderId,                                                // Merchant Order Id
-            'description' => $this->getOrderDescription($orderId),                                  // Description
+            'currency' => $this->getCurrencyName(),                                                 // Currency
+            'merchant_order_id' => self::getOrderNumber(),                                          // Merchant Order Id
+            'description' => $this->getOrderDescription(self::getOrderNumber()),                    // Description
             'customer' => $this->getCustomer($user),                                                // Customer information
             'payment_info' => [],                                                                   //             //
             'order_lines' => $this->getOrderLines($basket,$user['additional']['payment']['name']),  // Order Lines
@@ -129,8 +129,44 @@ class Helper
         return $ginger->createOrder($preOrder);
     }
 
+    /**
+     * Get Currency Short Name
+     * @return mixed
+     */
+    protected function getCurrencyName(){
+        return self::getBasket()['sCurrencyName'];
+    }
+
+    /**
+     * Get ShopWare Order Number
+     * @return mixed
+     */
+    protected function getOrderNumber(){
+        return Shopware()->Modules()->Order()->sGetOrderNumber();
+    }
+
+    /**
+     * Get ShopWare user from order
+     * @return mixed
+     */
+    protected function getUser(){
+        return Shopware()->Modules()->Admin()->sGetUserData();
+    }
+
+    /**
+     * Get ShopWare basket from order
+     * @return mixed
+     */
+    protected function getBasket(){
+        return Shopware()->Session()->sOrderVariables['sBasket'];
+    }
+
+    /**
+     * get Transactions array
+     * @param $payment
+     * @return array
+     */
     protected function getTransactions($payment){
-    //    print_r(['payment_method_details' => ['issuer_id' => $this->getIssuerId()]]);exit;
         return array_filter([
             array_filter([
                 'payment_method' => $payment,
@@ -170,7 +206,8 @@ class Helper
     /** Get user token
      * @return mixed
      */
-    public function getOrderToken($amount){
+    public function getOrderToken(){
+        $amount = self::getBasket()['sAmount'];
         $service = Shopware()->Container()->get("emspay.service");
         $user = Shopware()->Modules()->Admin()->sGetUserData();
         $billing = $user['billingaddress'];
