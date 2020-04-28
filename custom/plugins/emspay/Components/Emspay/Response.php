@@ -1,6 +1,6 @@
 <?php
 
-namespace emspay\Components\Emspay;
+namespace Ginger\emspay\Components\Emspay;
 
 class Response
 {

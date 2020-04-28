@@ -1,9 +1,6 @@
 <?php
 
-namespace emspay\Components\Emspay;
-
-use Ginger\ApiClient;
-use Ginger\Ginger;
+namespace Ginger\emspay\Components\Emspay;
 
 class Helper
 {
@@ -123,7 +120,7 @@ class Helper
             'customer' => $this->getCustomer($user),                                                // Customer information
             'payment_info' => [],                                                                   //             //
             'order_lines' => $this->getOrderLines($basket,$user['additional']['payment']['name']),  // Order Lines
-            'transactions' => $this->getTransactions($payment_method),  // Transactions Array
+            'transactions' => $this->getTransactions($payment_method),                                // Transactions Array
             'return_url' => $this->getReturnUrl($controller),                                       // Return URL
             'webhook_url' => $this->getWebhookUrl($controller,$user,$basket['sAmount']),            // Webhook URL
             'extra' => ['plugin' => $this->getPluginVersion()],                                     // Extra information]);

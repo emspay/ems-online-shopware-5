@@ -1,4 +1,7 @@
 <?php
+
+namespace Ginger\emspay_ideal\Controllers\Frontend;
+
 class Shopware_Controllers_Frontend_EmsPayIDeal extends Shopware_Controllers_Frontend_Payment
 {
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace emspay_ideal;
+namespace Ginger\emspay_ideal;
 
 use Shopware\Components\Plugin;
 use Shopware\Components\Plugin\Context\ActivateContext;
