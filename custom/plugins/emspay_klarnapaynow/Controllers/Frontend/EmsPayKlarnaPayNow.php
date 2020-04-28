@@ -67,7 +67,8 @@ class Shopware_Controllers_Frontend_EmsPayKlarnaPayNow extends Shopware_Controll
      */
     public function returnAction()
     {
-        $ems_order = $this->ems->getOrder($_GET['order_id']);
+        $ems_order_id = filter_input(INPUT_GET, 'order_id', FILTER_SANITIZE_STRING);
+        $ems_order = $this->ems->getOrder($ems_order_id);
 
         switch ($ems_order['status']) {
             case 'completed':

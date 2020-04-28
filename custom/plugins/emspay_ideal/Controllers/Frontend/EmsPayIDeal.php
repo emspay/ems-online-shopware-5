@@ -68,7 +68,8 @@ class Shopware_Controllers_Frontend_EmsPayIDeal extends Shopware_Controllers_Fro
      */
     public function returnAction()
     {
-        $ems_order = $this->ems->getOrder($_GET['order_id']);
+        $ems_order_id = filter_input(INPUT_GET, 'order_id', FILTER_SANITIZE_STRING);
+        $ems_order = $this->ems->getOrder($ems_order_id);
 
         switch ($ems_order['status']) {
             case 'completed':
@@ -112,7 +113,7 @@ class Shopware_Controllers_Frontend_EmsPayIDeal extends Shopware_Controllers_Fro
     }
 
     public function processissuerAction(){
-        $_SESSION['ems_issuer_id'] = $_GET['id'];
+        $_SESSION['ems_issuer_id'] = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_STRING);
         return $this->redirect($_SERVER['HTTP_REFERER']);
     }
 }
