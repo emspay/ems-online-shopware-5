@@ -74,8 +74,6 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
                 'webhook_url' => $this->helper->getWebhookUrl(self::CONTROLLER_NAME,$user,$basket['sAmount']),  // Webhook URL
                 'extra' => ['plugin' => $this->helper->getPluginVersion()],                                     // Extra information
             ]);
-
-            //print_r($preOrder);exit;
             $ems_order = $this->ginger->createOrder($preOrder);
           } catch (Exception $exception) {
                 print_r($exception->getMessage());exit;
@@ -85,7 +83,7 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
                 print_r("Error while creating your EMS order , please try again later"); exit;
             }
 
-            if ($ems_order['status'] == 'canceled') {
+            if ($ems_order['status'] == 'cancelled') {
                 print_r("You order was cancelled, please try again later"); exit;
             }
             if (isset($ems_order['order_url'])) {
