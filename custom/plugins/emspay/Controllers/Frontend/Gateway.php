@@ -40,15 +40,6 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
     }
 
     /**
-     *
-     */
-    public function errorAction(){
-
-//
- //       error_log($message.' in file -> '.$file.' on line : '.$line);
-    }
-
-    /**
      * Generate EMS Apple Pay.
      *
      * @param array
@@ -60,6 +51,7 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
             $user = $this->helper->getUser();
 
             $payment_method = $this->helper::SHOPWARE_TO_EMS_PAYMENTS[explode('emspay_',$user['additional']['payment']['name'])[1]];
+            $use_webhook = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay')['emsonline_webhook'];
 
             $preOrder = array_filter([
                 'amount' => $this->helper->getAmountInCents($basket['sAmount']),                                // Amount in cents
@@ -71,7 +63,7 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
                 'order_lines' => $this->helper->getOrderLines($basket,$user['additional']['payment']['name']),  // Order Lines
                 'transactions' => $this->helper->getTransactions($payment_method),                              // Transactions Array
                 'return_url' => $this->helper->getReturnUrl(self::CONTROLLER_NAME),                             // Return URL
-                'webhook_url' => $this->helper->getWebhookUrl(self::CONTROLLER_NAME,$user,$basket['sAmount']),  // Webhook URL
+                'webhook_url' => $use_webhook ? $this->helper->getWebhookUrl(self::CONTROLLER_NAME,$user,$basket['sAmount']) : null,  // Webhook URL
                 'extra' => ['plugin' => $this->helper->getPluginVersion()],                                     // Extra information
             ]);
             $ems_order = $this->ginger->createOrder($preOrder);

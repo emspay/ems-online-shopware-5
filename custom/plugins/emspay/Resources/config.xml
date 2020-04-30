@@ -15,15 +15,21 @@
         </element>
         <element type="boolean" scope="locale">
             <name>emsonline_bundle_cacert</name>
-            <label lang="de">EMS Online CaCert</label>
-            <label lang="en">EMS Online CaCert</label>
-            <label lang="nl">EMS Online CaCert</label>
-            <label lang="fr">EMS Online CaCert</label>
+            <label>EMS Online CaCert</label>
             <value>true</value>
             <description lang="de">cURL CA bündel benutzen.</description>
             <description lang="en">Use the cURL CA bundle.</description>
             <description lang="nl">Gebruik de cURL CA-bundle.</description>
             <description lang="fr">Utilisez le bundle cURL CA.</description>
+        </element>
+        <element type="boolean" scope="locale">
+            <name>emsonline_webhook</name>
+            <label>EMS Online Webhook</label>
+            <value>true</value>
+            <description lang="de">Verwenden Sie den Webhook</description>
+            <description lang="en">Use the cURL CA bundle.</description>
+            <description lang="nl">Gebruik de webhook</description>
+            <description lang="fr">Utilisez le webhook</description>
         </element>
     </elements>
 </config>
