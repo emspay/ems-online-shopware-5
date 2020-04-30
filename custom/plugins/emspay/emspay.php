@@ -34,7 +34,7 @@ class emspay extends Plugin
             'active' => 0,
             'position' => 1,
             'additionalDescription' =>
-                '<img src="custom/plugins/emspay_paynow/emspay_paynow.png"/>'
+                '<img src="custom/plugins/emspay/Payment_description/emspay_paynow.png"/>'
                 . '<div id="payment_desc">'
                 . '  Pay using EMS Online.'
                 . '</div>'
@@ -47,7 +47,7 @@ class emspay extends Plugin
             'active' => 0,
             'position' => 1,
             'additionalDescription' =>
-                '<img src="custom/plugins/emspay_applepay/emspay_applepay.png"/>'
+                '<img src="custom/plugins/emspay/Payment_description/emspay_applepay.png"/>'
                 . '<div id="payment_desc">'
                 . '  Pay using EMS Online.'
                 . '</div>'
@@ -60,7 +60,7 @@ class emspay extends Plugin
             'active' => 0,
             'position' => 1,
             'additionalDescription' =>
-                '<img src="custom/plugins/emspay_ideal/emspay_ideal.png"/>'
+                '<img src="custom/plugins/emspay/Payment_description/emspay_ideal.png"/>'
                 . '<div id="payment_desc">'
                 . '  Pay using EMS Online.'
                 . '</div>'
@@ -73,7 +73,7 @@ class emspay extends Plugin
             'active' => 0,
             'position' => 1,
             'additionalDescription' =>
-                '<img src="custom/plugins/emspay_klarnapaylater/emspay_klarnapaylater.png"/>'
+                '<img src="custom/plugins/emspay/Payment_description/emspay_klarnapaylater.png"/>'
                 . '<div id="payment_desc">'
                 . '  Pay using EMS Online.'
                 . '</div>'
@@ -86,7 +86,7 @@ class emspay extends Plugin
             'active' => 0,
             'position' => 1,
             'additionalDescription' =>
-                '<img src="custom/plugins/emspay_klarnapaynow/emspay_klarnapaynow.png"/>'
+                '<img src="custom/plugins/emspay/Payment_description/emspay_klarnapaynow.png"/>'
                 . '<div id="payment_desc">'
                 . '  Pay using EMS Online.'
                 . '</div>'
