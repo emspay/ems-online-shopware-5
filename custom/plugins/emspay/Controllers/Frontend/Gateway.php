@@ -29,6 +29,26 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
     }
 
     /**
+     * Index action method.
+     *
+     * Forwards to the Gateway Controller
+     */
+
+    public function indexAction()
+    {
+        return  $this->forward('createOrder');
+    }
+
+    /**
+     *
+     */
+    public function errorAction(){
+
+//
+ //       error_log($message.' in file -> '.$file.' on line : '.$line);
+    }
+
+    /**
      * Generate EMS Apple Pay.
      *
      * @param array
@@ -54,6 +74,8 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
                 'webhook_url' => $this->helper->getWebhookUrl(self::CONTROLLER_NAME,$user,$basket['sAmount']),  // Webhook URL
                 'extra' => ['plugin' => $this->helper->getPluginVersion()],                                     // Extra information
             ]);
+
+            //print_r($preOrder);exit;
             $ems_order = $this->ginger->createOrder($preOrder);
           } catch (Exception $exception) {
                 print_r($exception->getMessage());exit;

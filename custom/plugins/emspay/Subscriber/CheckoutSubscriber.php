@@ -46,6 +46,7 @@ class CheckoutSubscriber implements SubscriberInterface
 
         try{
         $ems_order = $this->ems->getOrder($ems_order_id);
+        //json_encode(var_dump($ems_order_id));exit;
         $ems_order['merchant_order_id'] = $shopware_order_id;
         $ems_order['description'] = (string)$this->helper->getOrderDescription($shopware_order_id);
             foreach ($ems_order['order_lines'] as $key => $order_line) {
