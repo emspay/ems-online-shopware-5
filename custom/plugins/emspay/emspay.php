@@ -27,6 +27,71 @@ class emspay extends Plugin
             'additionalDescription' => 'Don\'t set this payment by active'
         ];
         $installer->createOrUpdate($context->getPlugin(), $options);
+        $options = [
+            'name' => 'emspay_paynow',
+            'description' => 'EMS Online Pay Now',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_paynow.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
+        $options = [
+            'name' => 'emspay_applepay',
+            'description' => 'EMS Online Apple Pay',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_applepay.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
+        $options = [
+            'name' => 'emspay_ideal',
+            'description' => 'EMS Online iDEAL',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_ideal.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
+        $options = [
+            'name' => 'emspay_klarnapaylater',
+            'description' => 'EMS Online Klarna Pay Later',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_klarnapaylater.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
+        $options = [
+            'name' => 'emspay_klarnapaynow',
+            'description' => 'EMS Online Klarna Pay Now',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_klarnapaynow.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
     }
 
     /**
@@ -57,7 +122,7 @@ class emspay extends Plugin
      * @param Payment[] $payments
      * @param $active bool
      */
-    protected function setActiveFlag($payments, $active)
+    private function setActiveFlag($payments, $active)
     {
         $em = $this->container->get('models');
 

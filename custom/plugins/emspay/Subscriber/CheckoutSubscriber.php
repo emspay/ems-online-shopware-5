@@ -24,6 +24,11 @@ class CheckoutSubscriber implements SubscriberInterface
      * Update order on the EMS Side with orderId on FinishAction
      */
     public function onCheckoutFinishUpdate(\Enlight_Event_EventArgs $args){
+        //Check if selected payment method is EMS Online
+        if (explode('_', $args->getSubject()->View()->getAssign()['sPayment']['name'])[0] != 'emspay'){
+            return null;
+        }
+
         $this->helper = Shopware()->Container()->get('emspay.helper');                                                                          //Create Helper
         $this->ems = $this->helper->getClient(Shopware()->Container()->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay')); //Create EMS
 
@@ -41,6 +46,7 @@ class CheckoutSubscriber implements SubscriberInterface
 
         try{
         $ems_order = $this->ems->getOrder($ems_order_id);
+        //json_encode(var_dump($ems_order_id));exit;
         $ems_order['merchant_order_id'] = $shopware_order_id;
         $ems_order['description'] = (string)$this->helper->getOrderDescription($shopware_order_id);
             foreach ($ems_order['order_lines'] as $key => $order_line) {
@@ -49,7 +55,7 @@ class CheckoutSubscriber implements SubscriberInterface
                 $order_line['vat_percentage'] = intval($order_line['vat_percentage']);
                 $ems_order['order_lines'][$key] = $order_line;
             }
-        $this->ems->updateOrder($ems_order['id'].'/',$ems_order);
+        $this->ems->updateOrder($ems_order['id'],$ems_order);
         } catch (\Exception $exception){
             print_r($exception->getMessage());exit;
         }
