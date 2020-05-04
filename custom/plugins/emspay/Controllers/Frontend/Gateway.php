@@ -39,6 +39,11 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
         return  $this->forward('createOrder');
     }
 
+    public function errorAction()
+    {
+        return $this->View()->assign('error_message', $_SESSION['error_message']);
+    }
+
     /**
      * Generate EMS Apple Pay.
      *
@@ -67,12 +72,15 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
                 'extra' => ['plugin' => $this->helper->getPluginVersion()],                                     // Extra information
             ]);
             $ems_order = $this->ginger->createOrder($preOrder);
+            $this->helper->clearEmsSession();
+
           } catch (Exception $exception) {
                 print_r($exception->getMessage());exit;
             }
 
             if ($ems_order['status'] == 'error') {
-                print_r("Error while creating your EMS order , please try again later"); exit;
+                $_SESSION['error_message'] = current($ems_order['transactions'])['reason'];
+                return $this->redirect(['controller' => 'Gateway', 'action' => 'error']);
             }
 
             if ($ems_order['status'] == 'cancelled') {

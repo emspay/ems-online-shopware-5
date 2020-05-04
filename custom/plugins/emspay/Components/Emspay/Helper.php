@@ -309,6 +309,14 @@ class Helper
     }
 
     /**
+     * Clear all data what remembered while order processing
+     */
+    public function clearEmsSession(){
+        unset($_SESSION['emspay_birthday']);
+        unset($_SESSION['ems_issuer_id']);
+    }
+
+    /**
      * Function creating customer array
      *
      * @param $info
@@ -317,6 +325,8 @@ class Helper
      */
     public function getCustomer($info){
        return array_filter([
+           'gender' => $info['shippingaddress']['salutation'] == 'mr' ? 'male' : 'female',
+           'birthdate' => !empty($_SESSION['emspay_birthday']) ? $_SESSION['emspay_birthday'] : null,
            'address_type' => 'customer',
            'country' => $info['additional']['country']['countryiso'],
            'email_address' => $info['additional']['user']['email'],
