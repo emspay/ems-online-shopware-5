@@ -14,6 +14,7 @@ class Helper
             'klarnapaynow' => 'klarna-pay-now',
             'paynow' => null,
             'ideal' => 'ideal',
+            'afterpay' => 'afterpay',
         ];
     /**
      * Translator EMS statuses into Shopware statuses

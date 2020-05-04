@@ -19,6 +19,9 @@ class emspay extends Plugin
         /** @var \Shopware\Components\Plugin\PaymentInstaller $installer */
         $installer = $this->container->get('shopware.plugin_payment_installer');
 
+        /**
+         *  Install library
+         */
         $options = [
             'name' => 'emspay',
             'description' => 'Library for EMS Online Payments',
@@ -26,6 +29,10 @@ class emspay extends Plugin
             'position' => 1,
             'additionalDescription' => 'Don\'t set this payment by active'
         ];
+
+        /**
+         *  Install Pay Now Payment
+         */
         $installer->createOrUpdate($context->getPlugin(), $options);
         $options = [
             'name' => 'emspay_paynow',
@@ -39,6 +46,10 @@ class emspay extends Plugin
                 . '  Pay using EMS Online.'
                 . '</div>'
         ];
+
+        /**
+         *  Install Apple Pay Payment
+         */
         $installer->createOrUpdate($context->getPlugin(), $options);
         $options = [
             'name' => 'emspay_applepay',
@@ -52,6 +63,10 @@ class emspay extends Plugin
                 . '  Pay using EMS Online.'
                 . '</div>'
         ];
+
+        /**
+         *  Install iDEAL Payment
+         */
         $installer->createOrUpdate($context->getPlugin(), $options);
         $options = [
             'name' => 'emspay_ideal',
@@ -65,6 +80,10 @@ class emspay extends Plugin
                 . '  Pay using EMS Online.'
                 . '</div>'
         ];
+
+        /**
+         *  Install Klarna Pay Later Payment
+         */
         $installer->createOrUpdate($context->getPlugin(), $options);
         $options = [
             'name' => 'emspay_klarnapaylater',
@@ -78,6 +97,10 @@ class emspay extends Plugin
                 . '  Pay using EMS Online.'
                 . '</div>'
         ];
+
+        /**
+         *  Install Klarna Pay Now Payment
+         */
         $installer->createOrUpdate($context->getPlugin(), $options);
         $options = [
             'name' => 'emspay_klarnapaynow',
@@ -87,6 +110,23 @@ class emspay extends Plugin
             'position' => 1,
             'additionalDescription' =>
                 '<img src="custom/plugins/emspay/Payment_description/emspay_klarnapaynow.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+
+        /**
+         *  Install AfterPay Payment
+         */
+        $installer->createOrUpdate($context->getPlugin(), $options);
+        $options = [
+            'name' => 'emspay_afterpay',
+            'description' => 'EMS Online AfterPay',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_afterpay.png"/>'
                 . '<div id="payment_desc">'
                 . '  Pay using EMS Online.'
                 . '</div>'
