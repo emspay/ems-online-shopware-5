@@ -150,6 +150,24 @@ class emspay extends Plugin
                 . '</div>'
         ];
         $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install Bank Contact Payment
+         */
+        $installer->createOrUpdate($context->getPlugin(), $options);
+        $options = [
+            'name' => 'emspay_bancontact',
+            'description' => 'EMS Online Bancontact',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_bancontact.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
     }
 
     /**
