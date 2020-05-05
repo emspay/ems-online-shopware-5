@@ -326,7 +326,7 @@ class Helper
     public function getCustomer($info){
        return array_filter([
            'gender' => $info['shippingaddress']['salutation'] == 'mr' ? 'male' : 'female',
-           'birthdate' => !empty($_SESSION['emspay_birthday']) ? $_SESSION['emspay_birthday'] : 'error',
+           'birthdate' => $this->getBirthday($info['additional']['payment']['name']),
            'address_type' => 'customer',
            'country' => $info['additional']['country']['countryiso'],
            'email_address' => $info['additional']['user']['email'],
@@ -348,6 +348,19 @@ class Helper
            'ip_address' => self::getIpOfTheServer(),
            'additional_addresses' => self::getBillingAdress($info)
        ]);
+    }
+
+    private function getBirthday($payment){
+       if (!empty($_SESSION['emspay_birthday']) && $payment == 'emspay_afterpay') {
+           return ($_SESSION['emspay_birthday']);
+               } else {
+           if ($payment == 'emspay_afterpay') {
+              return 'error';
+           } else {
+               return null;
+           }
+
+       }
     }
 
     /**

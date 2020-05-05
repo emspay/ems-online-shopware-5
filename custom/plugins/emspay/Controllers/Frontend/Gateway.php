@@ -51,7 +51,6 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
      * @return array
      */
     public function createOrderAction(){
-        try{
             $basket = $this->helper->getBasket();
             $user = $this->helper->getUser();
 
@@ -72,12 +71,13 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
                 'extra' => ['plugin' => $this->helper->getPluginVersion()],                                     // Extra information
             ]);
 
+            if ($preOrder['customer']['birthdate'] == 'error') {
+                $_SESSION['error_message'] = 'Error processing order with AfterPay Payment, Please insert birthday on page Payment Method Selection';
+                return $this->redirect(['controller' => 'Gateway', 'action' => 'error']);
+            }
+
             $ems_order = $this->ginger->createOrder($preOrder);
             $this->helper->clearEmsSession();
-
-          } catch (Exception $exception) {
-                print_r($exception->getMessage());exit;
-            }
 
             if ($ems_order['status'] == 'error') {
                 $_SESSION['error_message'] = current($ems_order['transactions'])['reason'];
@@ -85,7 +85,8 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
             }
 
             if ($ems_order['status'] == 'cancelled') {
-                print_r("You order was cancelled, please try again later"); exit;
+                $_SESSION['error_message'] = "You order was cancelled, please try again later";
+                return $this->redirect(['controller' => 'Gateway', 'action' => 'error']);
             }
             if (isset($ems_order['order_url'])) {
                 return $this->redirect($ems_order['order_url']);
