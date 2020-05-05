@@ -91,6 +91,10 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
             if (isset($ems_order['order_url'])) {
                 return $this->redirect($ems_order['order_url']);
             }
+
+            if (current($ems_order['transactions'])['status'] == 'pending'){
+                return $this->saveEmsOrder($ems_order['id'],$this->helper->getOrderToken(),$this->helper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]);
+            }
        return $this->Response()->setRedirect(current($ems_order['transactions'])['payment_url']);
     }
 
@@ -106,12 +110,7 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
 
         switch ($ems_order['status']) {
             case 'completed':
-                $this->saveOrder(
-                    $ems_order['id'],
-                    $this->helper->getOrderToken(),
-                    $this->helper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]
-                );
-                return $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
+                $this->saveEmsOrder($ems_order['id'],$this->helper->getOrderToken(),$this->helper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]);
                 break;
             default:
                 return $this->redirect(['controller' => 'checkout']);
@@ -143,5 +142,23 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
         } catch (Exception $exception){
             die("Error saving order using webhook action".$exception->getMessage());
         }
+    }
+
+    /**
+     * Save EMS order in ShopWare backend
+     *
+     * @param $id
+     * @param $orderToken
+     * @param $status
+     * @return mixed
+     */
+    protected function saveEmsOrder($id, $orderToken, $status)
+    {
+        $this->saveOrder(
+            $id,
+            $orderToken,
+            $status
+        );
+        return $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
     }
 }

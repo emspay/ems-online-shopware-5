@@ -17,6 +17,7 @@ class Helper
             'afterpay' => 'afterpay',
             'amex' => 'amex',
             'bancontact' => 'bancontact',
+            'banktransfer' => 'bank-transfer',
         ];
     /**
      * Translator EMS statuses into Shopware statuses
