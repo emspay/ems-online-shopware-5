@@ -71,6 +71,7 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
                 'webhook_url' => $use_webhook ? $this->helper->getWebhookUrl(self::CONTROLLER_NAME,$user,$basket['sAmount']) : null,  // Webhook URL
                 'extra' => ['plugin' => $this->helper->getPluginVersion()],                                     // Extra information
             ]);
+
             $ems_order = $this->ginger->createOrder($preOrder);
             $this->helper->clearEmsSession();
 
@@ -141,14 +142,5 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
         } catch (Exception $exception){
             die("Error saving order using webhook action".$exception->getMessage());
         }
-    }
-
-    /**
-     * Add IsuuerId to Session
-     * @return mixed
-     */
-    public function processissuerAction(){
-        $_SESSION['ems_issuer_id'] = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_STRING);
-        return $this->redirect($_SERVER['HTTP_REFERER']);
     }
 }

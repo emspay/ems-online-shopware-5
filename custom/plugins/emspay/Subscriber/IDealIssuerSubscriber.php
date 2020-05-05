@@ -17,6 +17,7 @@ class IDealIssuerSubscriber implements SubscriberInterface
 
         return [
             'Shopware_Controllers_Frontend_Checkout::shippingPaymentAction::after' => 'displayIssuerSelect',
+            'Shopware_Controllers_Frontend_Checkout::saveShippingPaymentAction::before' => 'processIssuerSelect',
         ];
     }
     /**
@@ -51,15 +52,23 @@ class IDealIssuerSubscriber implements SubscriberInterface
      * @return string
      */
     private function getIssuerIdSelector($issuers_array){
-        $action_link = $this->helper->getProviderUrl('Gateway', 'processissuer');
         $content = '<span>Choose your bank:</span><br>';
-        $content .= '<select name="issuer" onchange="location = this.value">';
+        $content .= '<select name="issuer" id="emspay_issuer" name="emspay_issuer">';
         foreach ($issuers_array as $issuer) {
             if ($_SESSION['ems_issuer_id'] == null) {$_SESSION['ems_issuer_id']=$issuer['id'];}
             if (isset($_SESSION['ems_issuer_id']) && $_SESSION['ems_issuer_id'] == $issuer['id']) {$selected = 'selected';} else {$selected = null;}
-            $content .= '<option '.$selected.' value="'.implode("",[$action_link,'?id=',$issuer['id']]).'">'.$issuer['name'].'</option>';
+            $content .= '<option '.$selected.' value="'.$issuer['id'].'">'.$issuer['name'].'</option>';
         }
         $content .= '</select>';
         return $content;
+    }
+
+    /**
+     * Method for save iDEAL issuer ID
+     */
+    public function processIssuerSelect(){
+        if (!empty($_POST['issuer'])) {
+            $_SESSION['ems_issuer_id'] = $_POST['issuer'];
+        }
     }
 }

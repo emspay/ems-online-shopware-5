@@ -326,7 +326,7 @@ class Helper
     public function getCustomer($info){
        return array_filter([
            'gender' => $info['shippingaddress']['salutation'] == 'mr' ? 'male' : 'female',
-           'birthdate' => !empty($_SESSION['emspay_birthday']) ? $_SESSION['emspay_birthday'] : null,
+           'birthdate' => !empty($_SESSION['emspay_birthday']) ? $_SESSION['emspay_birthday'] : 'error',
            'address_type' => 'customer',
            'country' => $info['additional']['country']['countryiso'],
            'email_address' => $info['additional']['user']['email'],

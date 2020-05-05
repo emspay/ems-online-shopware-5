@@ -61,6 +61,10 @@ class AfterpaySubscriber implements SubscriberInterface
         return $content;
     }
 
+    /**
+     * Save birth date from same field in payment select.
+     * @param \Enlight_Event_EventArgs $args
+     */
     public function processBirthdaySelect(\Enlight_Event_EventArgs $args){
         if (!empty($_POST['emspay_birthday'])) {
             $_SESSION['emspay_birthday'] = $_POST['emspay_birthday'];
