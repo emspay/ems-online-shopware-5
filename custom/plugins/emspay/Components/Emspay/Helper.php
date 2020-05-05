@@ -18,6 +18,7 @@ class Helper
             'amex' => 'amex',
             'bancontact' => 'bancontact',
             'banktransfer' => 'bank-transfer',
+            'creditcard' => 'credit-card',
         ];
     /**
      * Translator EMS statuses into Shopware statuses
