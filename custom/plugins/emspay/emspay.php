@@ -235,6 +235,23 @@ class emspay extends Plugin
                 . '</div>'
         ];
         $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install Tikkie Payment Request Payment
+         */
+        $options = [
+            'name' => 'emspay_tikkiepaymentrequest',
+            'description' => 'EMS Online Tikkie Payment Request',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_tikkiepaymentrequest.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
     }
 
     /**

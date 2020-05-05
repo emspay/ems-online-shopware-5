@@ -76,8 +76,14 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
                 return $this->redirect(['controller' => 'Gateway', 'action' => 'error']);
             }
 
+            try{
             $ems_order = $this->ginger->createOrder($preOrder);
             $this->helper->clearEmsSession();
+            } catch (Exception $exception)
+            {
+                $_SESSION['error_message'] = $exception->getMessage();
+                return $this->redirect(['controller' => 'Gateway', 'action' => 'error']);
+            }
 
             if ($ems_order['status'] == 'error') {
                 $_SESSION['error_message'] = current($ems_order['transactions'])['reason'];

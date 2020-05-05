@@ -21,6 +21,7 @@ class Helper
             'creditcard' => 'credit-card',
             'payconiq' => 'payconiq',
             'paypal' => 'paypal',
+            'tikkiepaymentrequest' => 'tikkie-payment-request',
         ];
     /**
      * Translator EMS statuses into Shopware statuses
