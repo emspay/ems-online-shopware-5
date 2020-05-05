@@ -20,6 +20,7 @@ class Helper
             'banktransfer' => 'bank-transfer',
             'creditcard' => 'credit-card',
             'payconiq' => 'payconiq',
+            'paypal' => 'paypal',
         ];
     /**
      * Translator EMS statuses into Shopware statuses

@@ -218,6 +218,23 @@ class emspay extends Plugin
                 . '</div>'
         ];
         $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install PayPal Payment
+         */
+        $options = [
+            'name' => 'emspay_paypal',
+            'description' => 'EMS Online PayPal',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_paypal.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
     }
 
     /**
