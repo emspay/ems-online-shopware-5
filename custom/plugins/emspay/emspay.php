@@ -132,6 +132,24 @@ class emspay extends Plugin
                 . '</div>'
         ];
         $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install American Express Payment
+         */
+        $installer->createOrUpdate($context->getPlugin(), $options);
+        $options = [
+            'name' => 'emspay_amex',
+            'description' => 'EMS Online American Express',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_amex.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
     }
 
     /**

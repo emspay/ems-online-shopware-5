@@ -15,6 +15,7 @@ class Helper
             'paynow' => null,
             'ideal' => 'ideal',
             'afterpay' => 'afterpay',
+            'amex' => 'amex',
         ];
     /**
      * Translator EMS statuses into Shopware statuses
