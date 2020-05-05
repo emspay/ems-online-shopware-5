@@ -22,6 +22,7 @@ class Helper
             'payconiq' => 'payconiq',
             'paypal' => 'paypal',
             'tikkiepaymentrequest' => 'tikkie-payment-request',
+            'wechat' => 'wechat',
         ];
     /**
      * Translator EMS statuses into Shopware statuses
