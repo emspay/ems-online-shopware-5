@@ -201,6 +201,23 @@ class emspay extends Plugin
                 . '</div>'
         ];
         $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install Credit Card Payment
+         */
+        $options = [
+            'name' => 'emspay_payconiq',
+            'description' => 'EMS Online Payconiq',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_payconiq.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
     }
 
     /**
