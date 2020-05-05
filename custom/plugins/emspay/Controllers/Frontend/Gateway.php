@@ -51,6 +51,7 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
      * @return array
      */
     public function createOrderAction(){
+        try{
             $basket = $this->helper->getBasket();
             $user = $this->helper->getUser();
 
@@ -70,38 +71,27 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
                 'webhook_url' => $use_webhook ? $this->helper->getWebhookUrl(self::CONTROLLER_NAME,$user,$basket['sAmount']) : null,  // Webhook URL
                 'extra' => ['plugin' => $this->helper->getPluginVersion()],                                     // Extra information
             ]);
-
-            if ($preOrder['customer']['birthdate'] == 'error') {
-                $_SESSION['error_message'] = 'Error processing order with AfterPay Payment, Please insert birthday on page Payment Method Selection';
-                return $this->redirect(['controller' => 'Gateway', 'action' => 'error']);
-            }
-
-            try{
             $ems_order = $this->ginger->createOrder($preOrder);
             $this->helper->clearEmsSession();
-            } catch (Exception $exception)
-            {
-                $_SESSION['error_message'] = $exception->getMessage();
-                return $this->redirect(['controller' => 'Gateway', 'action' => 'error']);
-            }
 
             if ($ems_order['status'] == 'error') {
-                $_SESSION['error_message'] = current($ems_order['transactions'])['reason'];
-                return $this->redirect(['controller' => 'Gateway', 'action' => 'error']);
+                throw new Exception(current($ems_order['transactions'])['reason']);
             }
-
             if ($ems_order['status'] == 'cancelled') {
-                $_SESSION['error_message'] = "You order was cancelled, please try again later";
-                return $this->redirect(['controller' => 'Gateway', 'action' => 'error']);
+                throw new Exception("You order was cancelled, please try again later");
             }
             if (isset($ems_order['order_url'])) {
                 return $this->redirect($ems_order['order_url']);
             }
-
             if (current($ems_order['transactions'])['status'] == 'pending'){
                 return $this->saveEmsOrder($ems_order['id'],$this->helper->getOrderToken(),$this->helper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]);
             }
        return $this->Response()->setRedirect(current($ems_order['transactions'])['payment_url']);
+
+        } catch (Exception $exception) {
+        $_SESSION['error_message'] = $exception->getMessage();
+        return $this->redirect(['controller' => 'Gateway', 'action' => 'error']);
+        }
     }
 
     /**

@@ -363,7 +363,7 @@ class Helper
            return ($_SESSION['emspay_birthday']);
                } else {
            if ($payment == 'emspay_afterpay') {
-              return 'error';
+              throw new \Exception('Error processing order with AfterPay Payment, Please insert birthday on page Payment Method Selection');
            } else {
                return null;
            }
