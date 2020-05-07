@@ -214,7 +214,7 @@ class Helper
                 'amount' => self::getAmountInCents($product['amount']),
                 'quantity' => (int)$product['quantity'],
                 'vat_percentage' => (int)self::getAmountInCents($product['tax_rate']),
-                'merchant_order_line_id' => $product['articleID']
+                'merchant_order_line_id' => (string)$product['articleID']
             ]);
         }
         if ($basket['sShippingcostsWithTax']>0) {
