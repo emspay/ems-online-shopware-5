@@ -203,7 +203,7 @@ class emspay extends Plugin
         $installer->createOrUpdate($context->getPlugin(), $options);
 
         /**
-         *  Install Credit Card Payment
+         *  Install Payconiq Payment
          */
         $options = [
             'name' => 'emspay_payconiq',

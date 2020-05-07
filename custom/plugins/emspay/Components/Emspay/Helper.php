@@ -211,7 +211,7 @@ class Helper
                 'name' => $product['articlename'],
                 'type' => 'physical',
                 'currency' => self::DEFAULT_CURRENCY,
-                'amount' => self::getAmountInCents($product['amount']),
+                'amount' => self::getAmountInCents($product['priceNumeric']),
                 'quantity' => (int)$product['quantity'],
                 'vat_percentage' => (int)self::getAmountInCents($product['tax_rate']),
                 'merchant_order_line_id' => (string)$product['articleID']
@@ -359,16 +359,13 @@ class Helper
     }
 
     private function getBirthday($payment){
-       if (!empty($_SESSION['emspay_birthday']) && $payment == 'emspay_afterpay') {
-           return ($_SESSION['emspay_birthday']);
-               } else {
-           if ($payment == 'emspay_afterpay') {
-              throw new \Exception('Error processing order with AfterPay Payment, Please insert birthday on page Payment Method Selection');
-           } else {
-               return null;
-           }
-
-       }
+        if($payment != 'emspay_afterpay') {
+            return null;
+        }
+        if (empty($_SESSION['emspay_birthday'])) {
+            throw new \Exception('Error processing order with AfterPay Payment, Please insert birthday on page Payment Method Selection');
+        }
+        return $_SESSION['emspay_birthday'];
     }
 
     /**
