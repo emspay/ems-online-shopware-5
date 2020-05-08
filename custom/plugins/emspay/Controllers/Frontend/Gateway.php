@@ -39,6 +39,11 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
         return  $this->forward('createOrder');
     }
 
+    public function errorAction()
+    {
+        return $this->View()->assign('error_message', $_SESSION['error_message']);
+    }
+
     /**
      * Generate EMS Apple Pay.
      *
@@ -67,21 +72,26 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
                 'extra' => ['plugin' => $this->helper->getPluginVersion()],                                     // Extra information
             ]);
             $ems_order = $this->ginger->createOrder($preOrder);
-          } catch (Exception $exception) {
-                print_r($exception->getMessage());exit;
-            }
+            $this->helper->clearEmsSession();
 
             if ($ems_order['status'] == 'error') {
-                print_r("Error while creating your EMS order , please try again later"); exit;
+                throw new Exception(current($ems_order['transactions'])['reason']);
             }
-
             if ($ems_order['status'] == 'cancelled') {
-                print_r("You order was cancelled, please try again later"); exit;
+                throw new Exception("You order was cancelled, please try again later");
             }
             if (isset($ems_order['order_url'])) {
                 return $this->redirect($ems_order['order_url']);
             }
+            if (current($ems_order['transactions'])['status'] == 'pending'){
+                return $this->saveEmsOrder($ems_order['id'],$this->helper->getOrderToken(),$this->helper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]);
+            }
        return $this->Response()->setRedirect(current($ems_order['transactions'])['payment_url']);
+
+        } catch (Exception $exception) {
+        $_SESSION['error_message'] = $exception->getMessage();
+        return $this->redirect(['controller' => 'Gateway', 'action' => 'error']);
+        }
     }
 
     /**
@@ -96,12 +106,7 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
 
         switch ($ems_order['status']) {
             case 'completed':
-                $this->saveOrder(
-                    $ems_order['id'],
-                    $this->helper->getOrderToken(),
-                    $this->helper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]
-                );
-                return $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
+                $this->saveEmsOrder($ems_order['id'],$this->helper->getOrderToken(),$this->helper::EMS_TO_SHOPWARE_STATUSES[$ems_order['status']]);
                 break;
             default:
                 return $this->redirect(['controller' => 'checkout']);
@@ -136,11 +141,20 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
     }
 
     /**
-     * Add IsuuerId to Session
+     * Save EMS order in ShopWare backend
+     *
+     * @param $id
+     * @param $orderToken
+     * @param $status
      * @return mixed
      */
-    public function processissuerAction(){
-        $_SESSION['ems_issuer_id'] = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_STRING);
-        return $this->redirect($_SERVER['HTTP_REFERER']);
+    protected function saveEmsOrder($id, $orderToken, $status)
+    {
+        $this->saveOrder(
+            $id,
+            $orderToken,
+            $status
+        );
+        return $this->redirect(['controller' => 'checkout', 'action' => 'finish']);
     }
 }

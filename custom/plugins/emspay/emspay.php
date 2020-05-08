@@ -19,6 +19,9 @@ class emspay extends Plugin
         /** @var \Shopware\Components\Plugin\PaymentInstaller $installer */
         $installer = $this->container->get('shopware.plugin_payment_installer');
 
+        /**
+         *  Install library
+         */
         $options = [
             'name' => 'emspay',
             'description' => 'Library for EMS Online Payments',
@@ -26,6 +29,10 @@ class emspay extends Plugin
             'position' => 1,
             'additionalDescription' => 'Don\'t set this payment by active'
         ];
+
+        /**
+         *  Install Pay Now Payment
+         */
         $installer->createOrUpdate($context->getPlugin(), $options);
         $options = [
             'name' => 'emspay_paynow',
@@ -39,6 +46,10 @@ class emspay extends Plugin
                 . '  Pay using EMS Online.'
                 . '</div>'
         ];
+
+        /**
+         *  Install Apple Pay Payment
+         */
         $installer->createOrUpdate($context->getPlugin(), $options);
         $options = [
             'name' => 'emspay_applepay',
@@ -52,6 +63,10 @@ class emspay extends Plugin
                 . '  Pay using EMS Online.'
                 . '</div>'
         ];
+
+        /**
+         *  Install iDEAL Payment
+         */
         $installer->createOrUpdate($context->getPlugin(), $options);
         $options = [
             'name' => 'emspay_ideal',
@@ -65,6 +80,10 @@ class emspay extends Plugin
                 . '  Pay using EMS Online.'
                 . '</div>'
         ];
+
+        /**
+         *  Install Klarna Pay Later Payment
+         */
         $installer->createOrUpdate($context->getPlugin(), $options);
         $options = [
             'name' => 'emspay_klarnapaylater',
@@ -78,6 +97,10 @@ class emspay extends Plugin
                 . '  Pay using EMS Online.'
                 . '</div>'
         ];
+
+        /**
+         *  Install Klarna Pay Now Payment
+         */
         $installer->createOrUpdate($context->getPlugin(), $options);
         $options = [
             'name' => 'emspay_klarnapaynow',
@@ -87,6 +110,160 @@ class emspay extends Plugin
             'position' => 1,
             'additionalDescription' =>
                 '<img src="custom/plugins/emspay/Payment_description/emspay_klarnapaynow.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+
+        /**
+         *  Install AfterPay Payment
+         */
+        $installer->createOrUpdate($context->getPlugin(), $options);
+        $options = [
+            'name' => 'emspay_afterpay',
+            'description' => 'EMS Online AfterPay',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_afterpay.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install American Express Payment
+         */
+        $installer->createOrUpdate($context->getPlugin(), $options);
+        $options = [
+            'name' => 'emspay_amex',
+            'description' => 'EMS Online American Express',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_amex.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install Bancontact Payment
+         */
+        $options = [
+            'name' => 'emspay_bancontact',
+            'description' => 'EMS Online Bancontact',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_bancontact.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install Bank Transfer Payment
+         */
+        $options = [
+            'name' => 'emspay_banktransfer',
+            'description' => 'EMS Online Bank Transfer',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_banktransfer.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install Credit Card Payment
+         */
+        $options = [
+            'name' => 'emspay_creditcard',
+            'description' => 'EMS Online Credit Card',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_creditcard.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install Payconiq Payment
+         */
+        $options = [
+            'name' => 'emspay_payconiq',
+            'description' => 'EMS Online Payconiq',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_payconiq.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install PayPal Payment
+         */
+        $options = [
+            'name' => 'emspay_paypal',
+            'description' => 'EMS Online PayPal',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_paypal.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install Tikkie Payment Request Payment
+         */
+        $options = [
+            'name' => 'emspay_tikkiepaymentrequest',
+            'description' => 'EMS Online Tikkie Payment Request',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_tikkiepaymentrequest.png"/>'
+                . '<div id="payment_desc">'
+                . '  Pay using EMS Online.'
+                . '</div>'
+        ];
+        $installer->createOrUpdate($context->getPlugin(), $options);
+
+        /**
+         *  Install WeChat Payment
+         */
+        $options = [
+            'name' => 'emspay_wechat',
+            'description' => 'EMS Online WeChat',
+            'action' => 'Gateway',
+            'active' => 0,
+            'position' => 1,
+            'additionalDescription' =>
+                '<img src="custom/plugins/emspay/Payment_description/emspay_wechat.png"/>'
                 . '<div id="payment_desc">'
                 . '  Pay using EMS Online.'
                 . '</div>'

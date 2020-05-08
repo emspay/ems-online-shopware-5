@@ -14,6 +14,15 @@ class Helper
             'klarnapaynow' => 'klarna-pay-now',
             'paynow' => null,
             'ideal' => 'ideal',
+            'afterpay' => 'afterpay',
+            'amex' => 'amex',
+            'bancontact' => 'bancontact',
+            'banktransfer' => 'bank-transfer',
+            'creditcard' => 'credit-card',
+            'payconiq' => 'payconiq',
+            'paypal' => 'paypal',
+            'tikkiepaymentrequest' => 'tikkie-payment-request',
+            'wechat' => 'wechat',
         ];
     /**
      * Translator EMS statuses into Shopware statuses
@@ -202,10 +211,10 @@ class Helper
                 'name' => $product['articlename'],
                 'type' => 'physical',
                 'currency' => self::DEFAULT_CURRENCY,
-                'amount' => self::getAmountInCents($product['amount']),
+                'amount' => self::getAmountInCents($product['priceNumeric']),
                 'quantity' => (int)$product['quantity'],
                 'vat_percentage' => (int)self::getAmountInCents($product['tax_rate']),
-                'merchant_order_line_id' => $product['articleID']
+                'merchant_order_line_id' => (string)$product['articleID']
             ]);
         }
         if ($basket['sShippingcostsWithTax']>0) {
@@ -308,6 +317,14 @@ class Helper
     }
 
     /**
+     * Clear all data what remembered while order processing
+     */
+    public function clearEmsSession(){
+        unset($_SESSION['emspay_birthday']);
+        unset($_SESSION['ems_issuer_id']);
+    }
+
+    /**
      * Function creating customer array
      *
      * @param $info
@@ -316,6 +333,8 @@ class Helper
      */
     public function getCustomer($info){
        return array_filter([
+           'gender' => $info['shippingaddress']['salutation'] == 'mr' ? 'male' : 'female',
+           'birthdate' => $this->getBirthday($info['additional']['payment']['name']),
            'address_type' => 'customer',
            'country' => $info['additional']['country']['countryiso'],
            'email_address' => $info['additional']['user']['email'],
@@ -337,6 +356,16 @@ class Helper
            'ip_address' => self::getIpOfTheServer(),
            'additional_addresses' => self::getBillingAdress($info)
        ]);
+    }
+
+    private function getBirthday($payment){
+        if($payment != 'emspay_afterpay') {
+            return null;
+        }
+        if (empty($_SESSION['emspay_birthday'])) {
+            throw new \Exception('Error processing order with AfterPay Payment, Please insert birthday on page Payment Method Selection');
+        }
+        return $_SESSION['emspay_birthday'];
     }
 
     /**
