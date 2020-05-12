@@ -40,16 +40,16 @@
             <description lang="fr">Saisissez ici la clé API de la boutique en ligne de test pour tester Klarna Pay Later ou AfterPay. Si vous ne proposez pas Klarna Pay Later ou AfterPay, vous pouvez laisser ce champ vide.</description>
         </element>
         <element type="text" scope="locale">
-            <name>emsonline_test_ip_klarna</name>
-            <label>EMS Online Klarna Pay Later Test IP</label>
+            <name>emsonline_test_ip_afterpay</name>
+            <label>EMS Online Afterpay Test IP</label>
             <description lang="de">Sie können bestimmte IP-Adressen angeben, für die AfterPay sichtbar ist, z. B. wenn Sie AfterPay testen möchten. Sie können IP-Adressen als 128.0.0.1, 255.255.255.255 eingeben. Wenn Sie dieses Feld leer lassen, ist AfterPay für alle IP-Adressen sichtbar.</description>
             <description lang="en">You can specify specific IP addresses for which the Klarna is used Payment later payment method is visible, eg if you want to test (for example: 128.0.0.1, 255.255.255.255). If you do not enter anything, the payment method is visible for all IP addresses.</description>
             <description lang="nl">U kunt specifieke IP-adressen specificeren waarvoor AfterPay zichtbaar is, bijvoorbeeld als u AfterPay wilt testen. U kunt IP-adressen typen als 128.0.0.1, 255.255.255.255. Als je dit leeg laat is AfterPay zichtbaar voor alle IP-adressen.</description>
             <description lang="fr">Vous pouvez spécifier des adresses IP spécifiques pour lesquelles AfterPay est visible, par exemple si vous souhaitez tester AfterPay. Vous pouvez taper des adresses IP comme 128.0.0.1, 255.255.255.255. Si vous laissez ce champ AfterPay vide, il est visible par toutes les adresses IP.</description>
         </element>
         <element type="text" scope="locale">
-            <name>emsonline_test_ip_afterpay</name>
-            <label>EMS Online Afterpay Test IP</label>
+            <name>emsonline_test_ip_klarna</name>
+            <label>EMS Online Klarna Pay Later Test IP</label>
             <description lang="de">Sie können bestimmte IP-Adressen angeben, für die Klarna Pay Later sichtbar ist, z. B. wenn Sie Klarna Pay Later testen möchten. Sie können IP-Adressen als 128.0.0.1, 255.255.255.255 eingeben. Wenn Sie dieses Feld leer lassen, ist Klarna Pay Later für alle IP-Adressen sichtbar. "</description>
             <description lang="en">You can specify specific IP addresses for which the Klarna is used Payment later payment method is visible, eg if you want to test (for example: 128.0.0.1, 255.255.255.255). If you do not enter anything, the payment method is visible for all IP addresses.</description>
             <description lang="nl">U kunt specifieke IP-adressen specificeren waarvoor Klarna Pay Later zichtbaar is, bijvoorbeeld als u Klarna Pay Later wilt testen. U kunt IP-adressen typen als 128.0.0.1, 255.255.255.255. Als u dit leeg laat, is Klarna Pay Later zichtbaar voor alle IP-adressen. "</description>
