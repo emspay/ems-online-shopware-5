@@ -31,15 +31,16 @@ class IPBlockSubscriber implements SubscriberInterface
         $this->ems = $this->helper->getClient(Shopware()->Container()->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay')); //Create EMS
 
         foreach ($args->getSubject()->View()->getAssign()['sPayments'] as $payment) {
-            if ($payment['name'] == 'emspay_klarnapaylater') {
+            switch ($payment['name']) {
+                case 'emspay_klarnapaylater' :
                 $klarna_id = $payment['id'];
-            } elseif ($payment['name'] == 'emspay_afterpay') {
+                break;
+                case 'emspay_afterpay' :
                 $afterpay_id = $payment['id'];
             }
         }
-
         if (!empty($klarna_id) && !$this->ipAddressValidation('klarna')) {
-                $this->cleanUp($args,$klarna_id);
+            $this->cleanUp($args,$klarna_id);
         }
         if (!empty($afterpay_id) && !$this->ipAddressValidation('afterpay')) {
             $this->cleanUp($args,$afterpay_id);
@@ -52,18 +53,11 @@ class IPBlockSubscriber implements SubscriberInterface
      */
     private function ipAddressValidation($method){
         $config = Shopware()->Container()->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay');
-        if ($config['emsonline_test_ip_klarna'] != "" && $method == 'klarna'){
-        $ip_list = array_map('trim', explode(",", $config['emsonline_test_ip_klarna']));
-            if (!in_array($this->helper->getIpOfTheServer(), $ip_list)) {
-                return false;
-            }
-        } elseif ($config['emsonline_test_ip_afterpay'] != "" && $method == 'afterpay') {
-            $ip_list = array_map('trim', explode(",", $config['emsonline_test_ip_afterpay']));
-            if (!in_array($this->helper->getIpOfTheServer(), $ip_list)) {
-                return false;
-            }
-        }
-        return true;
+        $test_ip = $config[implode('_',['emsonline_test_ip',$method])];
+        if ($test_ip == "") return true;
+        $ip_list = array_map('trim', explode(",", $test_ip));
+
+        return in_array($this->helper->getIpOfTheServer(), $ip_list);
     }
 
     /**
@@ -72,20 +66,22 @@ class IPBlockSubscriber implements SubscriberInterface
      * @param $payment_id
      */
     private function cleanUp($args,$payment_id){
+        
         $view = $args->getSubject()->View();
         $assigned = $view->getAssign();
-        //Clean up list of payment methods for KP Later
+
+        //Clean up list of payment methods
         unset($assigned['sPayments'][$payment_id]);
         $view->assign('sPayments', $assigned['sPayments']);
 
-        //Clean up user-selected payment method if the payment method is KP Later
+        //Clean up user-selected payment method
         if ($assigned['sUserData']['additional']['payment']['id'] == $payment_id) {
             unset($assigned['sUserData']['additional']['payment']);
             $assigned['sUserData']['additional']['user']['paymentID'] = null;
         }
         $view->assign('sUserData', $assigned['sUserData']);
 
-        //Clean up Form Data if the last payment method is KP Later
+        //Clean up Form Data
         if ($assigned['sFormData']['payment'] == $payment_id) {
             $assigned['sFormData']['payment'] = null;
         }

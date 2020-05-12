@@ -75,7 +75,7 @@ class Helper
      */
     protected function getGignerClinet($apiKey, $useBundle = false)
     {
-        $ems = \Ginger\Ginger::createClient(
+        return \Ginger\Ginger::createClient(
             self::GINGER_ENDPOINT,
             $apiKey,
             $useBundle ?
@@ -83,8 +83,6 @@ class Helper
                     CURLOPT_CAINFO => self::getCaCertPath()
                 ] : []
         );
-
-        return $ems;
     }
 
     /**
@@ -103,10 +101,17 @@ class Helper
      */
     public function getClient($config, $method = null)
     {
-        if (($method == 'klarna-pay-later' || $method == 'afterpay') && ($config['emsonline_test_api'] != "")) {
-            return $this->getGignerClinet($config['emsonline_test_api'], $config['emsonline_bundle_cacert']);
+        switch ($method) {
+            case 'klarna-pay-later' :
+                $api_key = $config['emsonline_test_api_klarna'] != "" ? $config['emsonline_test_api_klarna'] : $config['emsonline_apikey'];
+                break;
+            case 'afterpay' :
+                $api_key = $config['emsonline_test_api_afterpay'] != "" ? $config['emsonline_test_api_afterpay'] : $config['emsonline_apikey'];
+                break;
+            default :
+                $api_key = $config['emsonline_apikey'];
         }
-        return $this->getGignerClinet($config['emsonline_apikey'],$config['emsonline_bundle_cacert']);
+        return $this->getGignerClinet($api_key,$config['emsonline_bundle_cacert']);
     }
 
     /**

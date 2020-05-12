@@ -32,12 +32,20 @@
             <description lang="fr">Utilisez le webhook</description>
         </element>
         <element type="text" scope="locale">
-            <name>emsonline_test_api</name>
-            <label>EMS Online Test API-Key</label>
-            <description lang="de">Geben Sie hier den API-Schlüssel des Test-Webshops ein, um Klarna Pay Later oder AfterPay zu testen. Wenn Sie Klarna Pay Later oder AfterPay nicht anbieten, können Sie dies leer lassen.</description>
-            <description lang="en">Enter the API Key of the test webshop here for testing Klarna Pay Later or AfterPay. If you do not offer Klarna Pay Later or AfterPay you can leave this empty.</description>
-            <description lang="nl">Voer hier de API Key van de test webshop in om Klarna Pay Later of AfterPay te testen. Als u Klarna Pay Later of AfterPay niet aanbiedt, kunt u dit leeg laten.</description>
-            <description lang="fr">Saisissez ici la clé API de la boutique en ligne de test pour tester Klarna Pay Later ou AfterPay. Si vous ne proposez pas Klarna Pay Later ou AfterPay, vous pouvez laisser ce champ vide.</description>
+            <name>emsonline_test_api_klarna</name>
+            <label>EMS Online Klarna Pay Later Test API-Key</label>
+            <description lang="de">Geben Sie hier den API-Schlüssel des Test-Webshops ein, um Klarna Pay Later zu testen. Wenn Sie Klarna Pay Later nicht anbieten, können Sie dies leer lassen.</description>
+            <description lang="en">Enter the API Key of the test webshop here for testing Klarna Pay Later. If you do not offer Klarna Pay Later you can leave this empty.</description>
+            <description lang="nl">Voer hier de API Key van de test webshop in om Klarna Pay Later te testen. Als u Klarna Pay Later niet aanbiedt, kunt u dit leeg laten.</description>
+            <description lang="fr">Saisissez ici la clé API de la boutique en ligne de test pour tester Klarna Pay Later. Si vous ne proposez pas Klarna Pay Later, vous pouvez laisser ce champ vide.</description>
+        </element>
+        <element type="text" scope="locale">
+            <name>emsonline_test_api_afterpay</name>
+            <label>EMS Online Afterpay Test API-Key</label>
+            <description lang="de">Geben Sie hier den API-Schlüssel des Test-Webshops ein, um AfterPay zu testen. Wenn Sie AfterPay nicht anbieten, können Sie dieses Feld leer lassen.</description>
+            <description lang="en">Enter the API Key of the test webshop here for testing AfterPay. If you do not offer AfterPay you can leave this empty.</description>
+            <description lang="nl">Voer hier de API Key van de test webshop in om AfterPay te testen. Als u AfterPay niet aanbiedt, kunt u dit leeg laten.</description>
+            <description lang="fr">Saisissez ici la clé API de la boutique en ligne de test pour tester AfterPay. Si vous n'offrez pas AfterPay, vous pouvez le laisser vide.</description>
         </element>
         <element type="text" scope="locale">
             <name>emsonline_test_ip_afterpay</name>
