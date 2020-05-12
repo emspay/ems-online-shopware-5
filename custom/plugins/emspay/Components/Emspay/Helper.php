@@ -101,8 +101,11 @@ class Helper
      * @param object $config
      * @return \Ginger\ApiClient
      */
-    public function getClient($config)
+    public function getClient($config, $method = null)
     {
+        if ($method == 'klarna-pay-later' && ($config['emsonline_test_api'] != "")) {
+            return $this->getGignerClinet($config['emsonline_test_api'], $config['emsonline_bundle_cacert']);
+        }
         return $this->getGignerClinet($config['emsonline_apikey'],$config['emsonline_bundle_cacert']);
     }
 

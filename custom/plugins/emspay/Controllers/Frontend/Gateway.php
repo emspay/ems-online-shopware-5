@@ -18,6 +18,12 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
      */
     protected $ginger;
 
+    /**
+     * Payment Method name
+     * @var
+     */
+    protected $payment_method;
+
     public function preDispatch(){
         $plugin = $this->get('kernel')->getPlugins()['emspay'];
 
@@ -25,7 +31,9 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
 
         $this->helper = $this->container->get('emspay.helper');                                                                                   //Create Helper
 
-        $this->ginger = $this->helper->getClient($this->container->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay'));       //Create EMS
+        $this->payment_method = $this->helper::SHOPWARE_TO_EMS_PAYMENTS[explode('emspay_',$this->getUser()['additional']['payment']['name'])[1]];
+
+        $this->ginger = $this->helper->getClient($this->container->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay'),$this->payment_method);       //Create EMS
     }
 
     /**
@@ -55,7 +63,6 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
             $basket = $this->helper->getBasket();
             $user = $this->helper->getUser();
 
-            $payment_method = $this->helper::SHOPWARE_TO_EMS_PAYMENTS[explode('emspay_',$user['additional']['payment']['name'])[1]];
             $use_webhook = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay')['emsonline_webhook'];
 
             $preOrder = array_filter([
@@ -66,7 +73,7 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
                 'customer' => $this->helper->getCustomer($user),                                                // Customer information
                 'payment_info' => [],                                                                           // Payment info
                 'order_lines' => $this->helper->getOrderLines($basket,$user['additional']['payment']['name']),  // Order Lines
-                'transactions' => $this->helper->getTransactions($payment_method),                              // Transactions Array
+                'transactions' => $this->helper->getTransactions($this->payment_method),                              // Transactions Array
                 'return_url' => $this->helper->getReturnUrl(self::CONTROLLER_NAME),                             // Return URL
                 'webhook_url' => $use_webhook ? $this->helper->getWebhookUrl(self::CONTROLLER_NAME,$user,$basket['sAmount']) : null,  // Webhook URL
                 'extra' => ['plugin' => $this->helper->getPluginVersion()],                                     // Extra information

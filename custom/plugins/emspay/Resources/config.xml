@@ -31,5 +31,21 @@
             <description lang="nl">Gebruik de webhook</description>
             <description lang="fr">Utilisez le webhook</description>
         </element>
+        <element type="text" scope="locale">
+            <name>emsonline_test_api</name>
+            <label>EMS Online Test API-Key</label>
+            <description lang="de">Geben Sie hier den API-Schlüssel des Test-Webshops ein, um Klarna Pay Later zu testen. Wenn Sie Klarna Pay Later nicht anbieten, können Sie dies leer lassen.</description>
+            <description lang="en">Enter the API Key of the test webshop here for testing Klarna Pay Later. If you do not offer Klarna Pay Later you can leave this empty.</description>
+            <description lang="nl">Voer hier de API Key van de test webshop in om Klarna Pay Later te testen. Als u Klarna Pay Later niet aanbiedt, kunt u dit leeg laten.</description>
+            <description lang="fr">Saisissez ici la clé API de la boutique en ligne de test pour tester Klarna Pay Later. Si vous ne proposez pas Klarna Pay Later, vous pouvez laisser ce champ vide.</description>
+        </element>
+        <element type="text" scope="locale">
+            <name>emsonline_test_ip</name>
+            <label>EMS Online Test IP</label>
+            <description lang="de">Sie können bestimmte IP-Adressen angeben, für die die Klarna verwendet wird. Die Zahlungsmethode "Später zahlen" ist sichtbar, z. B. wenn Sie testen möchten (z. B. 128.0.0.1, 255.255.255.255). Wenn Sie nichts eingeben, ist die Zahlungsmethode für alle IP-Adressen sichtbar.</description>
+            <description lang="en">You can specify specific IP addresses for which the Klarna is used Payment later payment method is visible, eg if you want to test (for example: 128.0.0.1, 255.255.255.255). If you do not enter anything, the payment method is visible for all IP addresses.</description>
+            <description lang="nl">U kunt specifieke IP-adressen opgeven waarvoor de Klarna wordt gebruikt Betaal later betaalmethode zichtbaar is, bv als u wilt testen (bijvoorbeeld: 128.0.0.1, 255.255.255.255). Vult u niets in dan est de betaalmethode voor alle IP-adressen zichtbaar.</description>
+            <description lang="fr">Vous pouvez spécifier des adresses IP spécifiques pour lesquelles le Klarna est utilisé. Le mode de paiement Paiement ultérieur est visible, par exemple si vous souhaitez tester (par exemple: 128.0.0.1, 255.255.255.255). Si vous n'entrez rien, le mode de paiement est visible pour toutes les adresses IP.</description>
+        </element>
     </elements>
 </config>
