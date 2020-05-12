@@ -11,7 +11,7 @@ class IPBlockSubscriber implements SubscriberInterface
     protected $helper;
 
     /**
-     * 0
+     * Subscribe the event
      * @return array
      */
     public static function getSubscribedEvents()
@@ -38,17 +38,22 @@ class IPBlockSubscriber implements SubscriberInterface
             }
         }
         if (!empty($klarna_id) && !$this->ipAddressValidation()) {
-        unset($assigned['sPayments'][$klarna_id]);
-        $view->assign('sPayments',$assigned['sPayments']);
+            //Clean up list of payment methods for KP Later
+            unset($assigned['sPayments'][$klarna_id]);
+            $view->assign('sPayments',$assigned['sPayments']);
+
+            //Clean up user-selected payment method if the payment method is KP Later
         if ($assigned['sUserData']['additional']['payment']['id'] == $klarna_id){
             unset($assigned['sUserData']['additional']['payment']);
             $assigned['sUserData']['additional']['user']['paymentID'] = null;
         }
+            //Clean up Form Data if the last payment method is KP Later
         $view->assign('sUserData',$assigned['sUserData']);
         if ($assigned['sFormData']['payment'] == $klarna_id) {
             $assigned['sFormData']['payment'] = null;
         }
         $view->assign('sFormData',$assigned['sFormData']);
+        
         }
     }
 

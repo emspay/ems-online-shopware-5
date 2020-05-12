@@ -10,7 +10,7 @@ class CheckoutSubscriber implements SubscriberInterface
     protected $ems;
     protected $helper;
     /**
-     * 0
+     * Subscribe the event
      * @return array
      */
     public static function getSubscribedEvents() {
