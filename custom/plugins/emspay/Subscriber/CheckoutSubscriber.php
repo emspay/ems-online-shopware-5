@@ -48,12 +48,6 @@ class CheckoutSubscriber implements SubscriberInterface
         $ems_order = $this->ems->getOrder($ems_order_id);
         $ems_order['merchant_order_id'] = $shopware_order_id;
         $ems_order['description'] = (string)$this->helper->getOrderDescription($shopware_order_id);
-            foreach ($ems_order['order_lines'] as $key => $order_line) {
-                $order_line['amount'] = intval($order_line['amount']);
-                $order_line['quantity'] = intval($order_line['quantity']);
-                $order_line['vat_percentage'] = intval($order_line['vat_percentage']);
-                $ems_order['order_lines'][$key] = $order_line;
-            }
         $this->ems->updateOrder($ems_order['id'],$ems_order);
         } catch (\Exception $exception){
             $_SESSION['error_message'] = $exception->getMessage();

@@ -4,3 +4,6 @@
 
 * Initial Version
 
+** 1.0.1 **
+
+* Removed unnecessary typecasts for order lines
