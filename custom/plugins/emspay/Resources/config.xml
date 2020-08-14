@@ -70,10 +70,10 @@
             <label lang="nl">Landen beschikbaar voor AfterPay</label>
             <label lang="fr">Pays disponibles pour AfterPay</label>
             <value>NL, BE</value>
-            <description lang="en">To allow AfterPay to be used for any other country just add its country code (in ISO 2 standard) to the "Countries available for AfterPay" field. Example: BE, NL, FR.</description>
-            <description lang="de">Um AfterPay für jedes andere Land verwenden zu können, fügen Sie einfach seinen Ländercode (in ISO 2-Norm) in das Feld "Für AfterPay verfügbare Länder" ein. Beispiel: BE, NL, FR.</description>
-            <description lang="nl">Om AfterPay voor elk ander land te kunnen gebruiken, voegt u gewoon de landcode (in ISO 2-norm) toe aan het veld "Beschikbare landen voor AfterPay". Voorbeeld: BE, NL, FR.</description>
-            <description lang="fr">Pour autoriser AfterPay à être utilisé pour tout autre pays, ajoutez simplement son code de pays (dans la norme ISO 2) dans le champ "Pays disponibles pour AfterPay". Exemple: BE, NL, FR.</description>
+            <description lang="en">To allow AfterPay to be used for any other country just add its country code (in ISO 2 standard) to the "Countries available for AfterPay" field. Example: BE, NL, FR. If field is empty then AfterPay will be available for all countries.</description>
+            <description lang="de">Um AfterPay für jedes andere Land verwenden zu können, fügen Sie einfach seinen Ländercode (in ISO 2-Norm) in das Feld "Für AfterPay verfügbare Länder" ein. Beispiel: BE, NL, FR. Wenn das Feld leer ist, ist AfterPay fur alle Lander verfugbar.</description>
+            <description lang="nl">Om AfterPay voor elk ander land te kunnen gebruiken, voegt u gewoon de landcode (in ISO 2-norm) toe aan het veld "Beschikbare landen voor AfterPay". Voorbeeld: BE, NL, FR. Als het veld leeg is, is AfterPay beschikbaar voor alle landen.</description>
+            <description lang="fr">Pour autoriser AfterPay à être utilisé pour tout autre pays, ajoutez simplement son code de pays (dans la norme ISO 2) dans le champ "Pays disponibles pour AfterPay". Exemple: BE, NL, FR. Si le champ est vide, AfterPay sera disponible pour tous les pays.</description>
         </element>
 
     </elements>
