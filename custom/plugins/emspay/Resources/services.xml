@@ -21,7 +21,7 @@
         <service id="emspay_events.subscriber.afterpay_subscriber" class="emspay\Subscriber\AfterpaySubscriber">
             <tag name="shopware.event_subscriber"/>
         </service>
-        <service id="emspay_events.subscriber.ipblock_subscriber" class="emspay\Subscriber\IPBlockSubscriber">
+        <service id="emspay_events.subscriber.paymentkeeper_subscriber" class="emspay\Subscriber\PaymentKeeperSubscriber">
             <tag name="shopware.event_subscriber"/>
         </service>
     </services>
