@@ -85,7 +85,7 @@ class ProcessPaymentDisplaySubscriber implements SubscriberInterface
      */
 
     private function countryValidation($method,$country){
-        $countries_string = $this->config[implode('_',['emsonline',$method,'countries'])];
+        $countries_string = $this->config[implode('_',['emsonline',$method,'countries'])] ?? "";
         $countries_list = array_map('trim', explode(",", $countries_string));
 
         return $countries_string != "" ? in_array($country, $countries_list) : true;
@@ -97,7 +97,7 @@ class ProcessPaymentDisplaySubscriber implements SubscriberInterface
      * @return bool
      */
     private function ipAddressValidation($method){
-        $test_ip = $this->config[implode('_',['emsonline_test_ip',$method])];
+        $test_ip = $this->config[implode('_',['emsonline_test_ip',$method])] ?? "";
         $ip_list = array_map('trim', explode(",", $test_ip));
 
         return $test_ip != "" ? in_array($this->helper->getIpOfTheServer(), $ip_list) : true;
