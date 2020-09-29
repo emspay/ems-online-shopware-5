@@ -7,7 +7,7 @@
             <label lang="de">EMS Online API-Schlüssel</label>
             <label lang="en">EMS Online API-Key</label>
             <label lang="nl">EMS Online API-sleutel</label>
-            <label lang="fr">EMS Online Clé API</label>
+            <label lang="fr">EMS Onlin Clé API</label>
             <description lang="de">EMS PAY API Schlüssel ist erforderlich. Duplizieren Sie Ihre EMS PAY API Schlüssel von Merchant Portal.</description>
             <description lang="en">EMS PAY API key is required. Duplicate your EMS PAY API keys from Merchant Portal.</description>
             <description lang="nl">EMS PAY API-sleutel is vereist. Dupliceer uw EMS PAY API-sleutels van Merchant Portal.</description>
@@ -21,15 +21,6 @@
             <description lang="en">Use the cURL CA bundle.</description>
             <description lang="nl">Gebruik de cURL CA-bundle.</description>
             <description lang="fr">Utilisez le bundle cURL CA.</description>
-        </element>
-        <element type="boolean" scope="locale">
-            <name>emsonline_webhook</name>
-            <label>EMS Online Webhook</label>
-            <value>true</value>
-            <description lang="de">Verwenden Sie den Webhook</description>
-            <description lang="en">Use the cURL CA bundle.</description>
-            <description lang="nl">Gebruik de webhook</description>
-            <description lang="fr">Utilisez le webhook</description>
         </element>
         <element type="text" scope="locale">
             <name>emsonline_test_api_klarna</name>
