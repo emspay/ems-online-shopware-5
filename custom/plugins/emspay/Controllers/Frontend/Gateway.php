@@ -63,8 +63,6 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
             $basket = $this->helper->getBasket();
             $user = $this->helper->getUser();
 
-            $use_webhook = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay')['emsonline_webhook'];
-
             $preOrder = array_filter([
                 'amount' => $this->helper->getAmountInCents($basket['sAmount']),                                // Amount in cents
                 'currency' => $this->helper->getCurrencyName(),                                                 // Currency
@@ -75,7 +73,7 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
                 'order_lines' => $this->helper->getOrderLines($basket,$user['additional']['payment']['name']),  // Order Lines
                 'transactions' => $this->helper->getTransactions($this->payment_method),                              // Transactions Array
                 'return_url' => $this->helper->getReturnUrl(self::CONTROLLER_NAME),                             // Return URL
-                'webhook_url' => $use_webhook ? $this->helper->getWebhookUrl(self::CONTROLLER_NAME,$user,$basket['sAmount']) : null,  // Webhook URL
+                'webhook_url' => $this->helper->getWebhookUrl(self::CONTROLLER_NAME,$user,$basket['sAmount']),  // Webhook URL
                 'extra' => ['plugin' => $this->helper->getPluginVersion()],                                     // Extra information
             ]);
             $ems_order = $this->ginger->createOrder($preOrder);

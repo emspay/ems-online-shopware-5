@@ -25,9 +25,14 @@ class CheckoutSubscriber implements SubscriberInterface
      */
     public function onCheckoutFinishUpdate(\Enlight_Event_EventArgs $args){
         //Check if selected payment method is EMS Online
-        if (explode('_', $args->getSubject()->View()->getAssign()['sPayment']['name'])[0] != 'emspay'){
+        $payment = explode('_', $args->getSubject()->View()->getAssign()['sPayment']['name']);
+        $provider = $payment[0];
+        $method = $payment[1];
+
+        if ($provider != 'emspay'){
             return null;
         }
+
         try{
         $this->helper = Shopware()->Container()->get('emspay.helper');                                                                          //Create Helper
         $this->ems = $this->helper->getClient(Shopware()->Container()->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay')); //Create EMS
@@ -46,19 +51,27 @@ class CheckoutSubscriber implements SubscriberInterface
 
 
         $ems_order = $this->ems->getOrder($ems_order_id);
+
+        if ($method == 'banktransfer') {
+            $view = $args->getSubject()->View();
+            $this->showIbanInformation($view,current($ems_order['transactions'])['payment_method_details']);
+        }
+
         $ems_order['merchant_order_id'] = $shopware_order_id;
         $ems_order['description'] = (string)$this->helper->getOrderDescription($shopware_order_id);
-            foreach ($ems_order['order_lines'] as $key => $order_line) {
-                $order_line['amount'] = intval($order_line['amount']);
-                $order_line['quantity'] = intval($order_line['quantity']);
-                $order_line['vat_percentage'] = intval($order_line['vat_percentage']);
-                $ems_order['order_lines'][$key] = $order_line;
-            }
         $this->ems->updateOrder($ems_order['id'],$ems_order);
         } catch (\Exception $exception){
             $_SESSION['error_message'] = $exception->getMessage();
             return $args->getSubject()->redirect(['controller' => 'Gateway', 'action' => 'error']);
         }
         return true;
+    }
+
+    private function showIbanInformation($view,$details){
+    $view->addTemplateDir(__DIR__.'/../Resources/views/');
+    $view->extendsTemplate(
+            'frontend/checkout/finish.tpl'
+        );
+    $view->assign('emspayIbanInformation',$details);
     }
 }
