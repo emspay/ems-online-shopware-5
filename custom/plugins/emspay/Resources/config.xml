@@ -22,15 +22,6 @@
             <description lang="nl">Gebruik de cURL CA-bundle.</description>
             <description lang="fr">Utilisez le bundle cURL CA.</description>
         </element>
-        <element type="boolean" scope="locale">
-            <name>emsonline_webhook</name>
-            <label>EMS Online Webhook</label>
-            <value>true</value>
-            <description lang="de">Verwenden Sie den Webhook</description>
-            <description lang="en">Use the webhook.</description>
-            <description lang="nl">Gebruik de webhook</description>
-            <description lang="fr">Utilisez le webhook</description>
-        </element>
         <element type="text" scope="locale">
             <name>emsonline_test_api_klarna</name>
             <label>EMS Online Klarna Pay Later Test API-Key</label>
