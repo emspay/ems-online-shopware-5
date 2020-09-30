@@ -7,7 +7,7 @@
             <label lang="de">EMS Online API-Schlüssel</label>
             <label lang="en">EMS Online API-Key</label>
             <label lang="nl">EMS Online API-sleutel</label>
-            <label lang="fr">EMS Onlin Clé API</label>
+            <label lang="fr">EMS Online Clé API</label>
             <description lang="de">EMS PAY API Schlüssel ist erforderlich. Duplizieren Sie Ihre EMS PAY API Schlüssel von Merchant Portal.</description>
             <description lang="en">EMS PAY API key is required. Duplicate your EMS PAY API keys from Merchant Portal.</description>
             <description lang="nl">EMS PAY API-sleutel is vereist. Dupliceer uw EMS PAY API-sleutels van Merchant Portal.</description>

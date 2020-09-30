@@ -63,8 +63,6 @@ class Shopware_Controllers_Frontend_Gateway extends Shopware_Controllers_Fronten
             $basket = $this->helper->getBasket();
             $user = $this->helper->getUser();
 
-            $use_webhook = $this->container->get('shopware.plugin.cached_config_reader')->getByPluginName('emspay')['emsonline_webhook'];
-
             $preOrder = array_filter([
                 'amount' => $this->helper->getAmountInCents($basket['sAmount']),                                // Amount in cents
                 'currency' => $this->helper->getCurrencyName(),                                                 // Currency
