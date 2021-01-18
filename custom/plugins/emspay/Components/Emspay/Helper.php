@@ -37,7 +37,7 @@ class Helper
             'processing' => 17,
             'completed' => 12,
             'see-transactions' => 21,
-            'captured' => 12,
+            'captured' => 18,
             'invoiced' => 10
         ];
 
