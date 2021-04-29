@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/5.3/engine/Shopware/Components/Plugin/schema/plugin.xsd">
+
+    <label >EMS Online Ginger Payments</label>
+    <label lang="de">EMS Online Ginger Zahlungen</label>
+
+    <version>1.2.0</version>
+    <copyright>(c) 2021 EMS</copyright>
+    <license>MIT</license>
+    <author>Ginger Payments</author>
+
+    <description>This plugin contains all EMS Pay supported payment methods that you can activate and allow consumers to pay for all purchases through EMS Online suck as iDEAL, Afterpay, etc.</description>
+    <description lang="de">Dieses Plugin enthält alle von EMS Pay unterstützten Zahlungsmethoden, die Sie aktivieren können, und ermöglicht es Verbrauchern, alle Einkäufe über EMS Online als iDEAL, Afterpay usw.</description>
+
+    <changelog version="1.2.0">
+        <changes lang="de">Initial web type version</changes>
+        <changes lang="en">Initial web type version</changes>
+    </changelog>
+
+    <compatibility minVersion="5.6.0"/>
+</plugin>

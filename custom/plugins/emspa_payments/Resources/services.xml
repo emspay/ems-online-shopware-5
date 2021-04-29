@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="emspa_payments.service"  class="emspa_payments\Components\emspay\Service">
+        </service>
+        <service id="emspa_payments.helper" class="emspa_payments\Components\emspay\Helper">
+        </service>
+        <service id="emspa_payments_events.subscriber.status_subscriber" class="emspa_payments\Subscriber\StatusSubscriber">
+                <tag name="shopware.event_subscriber"/>
+        </service>
+        <service id="emspa_payments_events.subscriber.checkout_subscriber" class="emspa_payments\Subscriber\CheckoutSubscriber">
+            <tag name="shopware.event_subscriber"/>
+        </service>
+        <service id="emspa_payments_events.subscriber.processpaymentdispaly_subscriber" class="emspa_payments\Subscriber\ProcessPaymentDisplaySubscriber">
+            <tag name="shopware.event_subscriber"/>
+        </service>
+        <service id="emspa_payments_events.subscriber.afterpay_subscriber" class="emspa_payments\Subscriber\AfterpaySubscriber">
+            <tag name="shopware.event_subscriber"/>
+        </service>
+    </services>
+</container>
